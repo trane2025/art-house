@@ -3,6 +3,8 @@ import { Provider } from 'react-redux';
 import { createGlobalStyle } from 'styled-components';
 import { useStore } from '../store/store';
 
+
+
 const GlobalStyle = createGlobalStyle`
   *{
     box-sizing: border-box;
@@ -12,6 +14,8 @@ const GlobalStyle = createGlobalStyle`
     text-decoration: none;
     outline: none;
   }
+
+  
 
   h1, h2 {
     text-transform: uppercase;

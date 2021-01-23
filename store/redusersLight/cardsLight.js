@@ -11,12 +11,11 @@ export const cardsLight = (state = initialState, action) => {
         case SET_CARDS_LIGHT:
             if (action.arr) {
                 return {
-                    goods: [...action.arr],
-                    showBtn: action.showBtn
+                    goods: [...action.arr]
                 }
             }
             else return {
-                goods: action.arr,
+                goods: null,
                 showBtn: '0'
             }
         case SET_CARDS_LIGHT_MORE:

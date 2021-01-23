@@ -1,5 +1,6 @@
 import { applyMiddleware, combineReducers, createStore } from 'redux';
 import basket from './reducers/basket';
+import paginator from './reducers/paginator';
 import { cardsGoods } from './reducers/cardsGoods';
 import filter from './reducers/filter';
 import { pageLinks } from './reducers/pageLinks';
@@ -12,11 +13,15 @@ import { filterSoftFurniture } from './redusersSoftFurniture/filterSoftFurniture
 
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { useMemo } from 'react';
+import prelouder from './reducers/prelouder';
+
 
 
 let store
 
 const initialState = {};
+
+
 
 const reducers = combineReducers({
     filter,
@@ -28,7 +33,9 @@ const reducers = combineReducers({
     cardsDecor,
     basket,
     cardsSoftFurniture,
-    filterSoftFurniture
+    filterSoftFurniture,
+    paginator,
+    prelouder
 })
 
 function initStore(preloadedState = initialState) {

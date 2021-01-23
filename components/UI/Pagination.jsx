@@ -1,74 +1,35 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { useUpdateEffect } from '../../useHooks';
+import { nextPage, prevPage, setPaginator } from '../../store/reducers/paginator';
+import next from 'next';
 
 function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-function Pagination({ pagination, url }) {
-
-    const [activePage, setActivePage] = useState(+pagination.nmb_page);
-
-    useEffect(() => {
-        setActivePage(+pagination.nmb_page);
-    }, [+pagination.nmb_page])
-
-
-
-    const numberShowGoods = 16; //Колличество отображаемых товаров
-    const numberAllGoods = +pagination.count_all_goods; //Колличество всех товаров
-    const numberShowCount = 8;
-
-
-
-    const countAllPages = Math.ceil(numberAllGoods / numberShowGoods); //Колличество всех номеров 30 000
-    const [numberGroup, setNumberGroup] = useState(Math.ceil(activePage / numberShowCount)); //номер группы
-
-    useEffect(() => {
-        console.log(Math.ceil(activePage / numberShowCount));
-        setNumberGroup(Math.ceil(activePage / numberShowCount));
-    }, [activePage])
-
-
-    const getPages = (countShow) => {
-        let countVal = 0;
-        let newArr = [];
-        const numItaration = Math.ceil(countAllPages / countShow);
-
-        for (let i = 0; i < numItaration; i++) {
-            newArr.push([]);
-            for (let j = 0; j < countShow; j++) {
-
-                countVal++
-                if (countVal <= countAllPages) {
-                    newArr[i].push(countVal);
-                }
-                else break
-
-            }
-        }
-        return newArr;
-    }
-
+function Pagination({ url, paginator, nextPage }) {
 
 
     const onclickNext = () => {
-        console.log(numberGroup);
-        if (numberGroup < Math.ceil(countAllPages / numberShowCount)) {
-            setNumberGroup(pre => pre + 1);
+
+        if (paginator.numberActiveGroup < paginator.countAllGroup - 1) {
+            nextPage(paginator.numberActiveGroup + 1);
+
         }
-        else setNumberGroup(1);
+        else nextPage(paginator.countAllGroup - 1);
 
     }
 
     const onclickPrev = () => {
-        console.log(Math.ceil(countAllPages / numberShowCount));
-        if (numberGroup > 1) {
-            setNumberGroup(pre => pre - 1);
+
+        if (paginator.numberActiveGroup > 1) {
+            nextPage(paginator.numberActiveGroup - 1);
         }
-        else setNumberGroup(Math.ceil(countAllPages / numberShowCount));
+        else nextPage(0);
     }
 
 
@@ -76,54 +37,60 @@ function Pagination({ pagination, url }) {
 
     return (
         <Container>
-            <SlideButton onClick={onclickPrev}>
+            {paginator.countAllGroup > 1 && <SlideButton onClick={onclickPrev}>
                 <a>
                     <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
                     </svg>
                 </a>
-            </SlideButton>
+            </SlideButton>}
             <WraperLinks>
-                {getPages(numberShowCount)[numberGroup - 1].map((el, index) => {
-
+                {!!paginator.arr.length && paginator.arr[paginator.numberActiveGroup].map((el, index) => {
                     return (
                         <Item key={index}>
-                            <Link href={`/catalog/light?count=${el}`} >
-
-                                <LinkPagination activePage={activePage === el} >{el}</LinkPagination>
-
+                            <Link href={`/${url}?count=${el}`} >
+                                <a>
+                                    <LinkPagination activePage={paginator.activePage === el} >{el}</LinkPagination>
+                                </a>
                             </Link>
 
                         </Item>
                     )
                 })}
-                <Item>
-                    ...
-                </Item>
-                <Item>
-                    <Link href={`/catalog/light?count=${countAllPages}`}>
-                        <LinkPagination>{numberWithSpaces(countAllPages)}</LinkPagination>
-                    </Link>
-                </Item>
+                {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== paginator.countAllGroup && <>
+                    <Item>
+                        ...
+                    </Item>
+                    <Item>
+                        <Link href={`/${url}?count=${paginator.countAllPages}`}>
+                            <LinkPagination>{numberWithSpaces(paginator.countAllPages)}</LinkPagination>
+                        </Link>
+                    </Item>
+                </>}
             </WraperLinks>
-            <SlideButton right onClick={onclickNext}>
+            {paginator.countAllGroup > 1 && <SlideButton right onClick={onclickNext}>
                 <a>
                     <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
                     </svg>
                 </a>
-            </SlideButton>
+            </SlideButton>}
         </Container >
     )
 }
 
-export default Pagination;
+const mapStateToProps = (state) => ({
+    paginator: state.paginator
+});
+
+export default connect(mapStateToProps, { setPaginator, nextPage, prevPage })(Pagination);
 
 const Container = styled.li`
     margin-top: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
+    scroll-behavior: smooth;
 `;
 
 const SlideButton = styled.div`
@@ -169,7 +136,7 @@ const Item = styled.li`
     margin: 0 2.5px;
 `;
 
-const LinkPagination = styled.a`
+const LinkPagination = styled.p`
     cursor: pointer;
     user-select: none;
     width: 45px;
@@ -182,6 +149,8 @@ const LinkPagination = styled.a`
     color: ${props => props.activePage ? ' #FFFFFF' : '#5B1717'};
     border: ${props => props.activePage ? 'none' : ' 1px solid #EED6CD'};
     box-sizing: border-box;
+    animation-name: fade;
+    animation-duration: .5s;
 
     font-weight: 800;
     font-size: 12px;

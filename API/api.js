@@ -23,9 +23,9 @@ export const rootAPI = {
 }
 
 export const rootAPIsvet = {
-    getLight(type = '', sort = '1') {
+    getLight(type = '', sort = '1', page) {
         return (
-            Axios.get(`https://server.arthouse-decor.ru/server_lights/app.php?page=lights&sort=${sort}&type=${type}`).then(response => response.data)
+            Axios.get(`https://server.arthouse-decor.ru/server_lights/app_with_pagination.php?page=lights&sort=${sort}&type=${type}&nmb_page=${page}`).then(response => response.data)
         )
     },
     getLightMore(count, sort = '1', type = '') {

@@ -79,8 +79,7 @@ function CatalogLight(props) {
                     })
                         : <CatalogNull />}
                 </CardsListStyle>
-                {/* {!props.prelouder && props.cardsLight.showBtn != 0 && <button onClick={props.getGoodsMore} className='button-more' >Показать еще</button>} */}
-                <Pagination pagination={props.pagination} />
+                {<Pagination pagination={props.pagination} url={props.url} />}
 
             </div>
         </StoreContainer>

@@ -6,6 +6,7 @@ import BasketContainer from '../Basket/BasketContainer';
 import NavbarContainer from '../Navbar/NavbarContainer';
 import YandexMetrica from '../YandexMetrica/YandexMetrica';
 
+
 function Layout({ children, title = 'Art-House', description }) {
     return (
         <>

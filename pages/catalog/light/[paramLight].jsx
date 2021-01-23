@@ -4,26 +4,28 @@ import { connect } from 'react-redux';
 import { setCategoriesLink, setCategoriesLinkParamPage, categoryToggle } from '../../../store/redusersLight/filterLight';
 import { useEffect, useState } from 'react';
 import { rootAPIsvet } from '../../../API/api';
-import { setCardsLight, setCardsLightMore } from '../../../store/redusersLight/cardsLight';
+import { setCardsLight } from '../../../store/redusersLight/cardsLight';
 import CatalogLight from '../../../components/pagesCatalog/CalalogLight/CatalogLight';
 
 import { normalizeLightParamPage } from '../../../normalaze/normalazeLight';
 import { initializeStore } from '../../../store/store';
 import { useUpdateEffect } from '../../../useHooks';
+import { setPaginator } from '../../../store/reducers/paginator';
 
 
 
 
-function paramLight({ title, query, filterLight, cardsLight, setCardsLight, setCardsLightMore, categoryToggle }) {
+function paramLight({ title, query, filterLight, cardsLight, setCardsLight, categoryToggle, res, numberPage }) {
+
+
+    const url = `catalog/light/${query}`;
 
     const [prelouder, setPrelouder] = useState(false);
     const [option, setOption] = useState(1);
-    const [showNumber, setShowNumber] = useState(16);
     const [imageLoading, setImageLoding] = useState(false);
 
     const onchangeOptions = (event) => {
         setImageLoding(true);
-        setShowNumber(16);
         setOption(event.target.value);
     }
 
@@ -36,10 +38,7 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, setC
             setPrelouder(false);
         }, 500);
 
-        return () => {
-            setShowNumber(16);
-        }
-    }, [query])
+    }, [query, numberPage])
 
 
     const toggleCategory = (category, open) => {
@@ -54,16 +53,6 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, setC
         })
     }, [option])
 
-    const showMore = () => {
-        setImageLoding(true);
-        setPrelouder(true);
-        setShowNumber(pre => pre + 16);
-
-        rootAPIsvet.getLightMore(showNumber, option, query).then(response => {
-            setCardsLightMore(response.goods, response.showBtnMore);
-            setPrelouder(false);
-        })
-    }
 
     return (
         <Layout title={title}>
@@ -74,10 +63,11 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, setC
                     cardsLight={cardsLight}
                     toggleCategory={toggleCategory}
                     onchangeOptions={onchangeOptions}
-                    getGoodsMore={showMore}
                     prelouder={prelouder}
                     imageLoading={imageLoading}
-                    option={option} />
+                    option={option}
+                    pagination={res}
+                    url={url} />
             </Container>
         </Layout >
     )
@@ -93,12 +83,18 @@ const mapStateToProps = (state) => ({
 
 
 export async function getServerSideProps(context) {
+
     const query = context.query.paramLight;
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
-    const res = await rootAPIsvet.getLight(query).then(response => {
-        return response
-    })
+
+    let numberPage = 1;
+
+    if (context.query.count) {
+        numberPage = context.query.count;
+    }
+
+    const res = await rootAPIsvet.getLight(query, '1', numberPage)
 
     const linkNormalize = await normalizeLightParamPage(res.catGoods, query);
 
@@ -115,10 +111,12 @@ export async function getServerSideProps(context) {
     const categoryItemId = linkNormalize.categoryItemId;
 
     dispatch(setCategoriesLinkParamPage(linkNormalize.lightsArr, categoryId, categoryItemId));
-    dispatch(setCardsLight(res.goods, res.showBtnMore));
+    dispatch(setCardsLight(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
+            numberPage,
             res,
             query,
             title,
@@ -127,7 +125,7 @@ export async function getServerSideProps(context) {
     }
 }
 
-export default connect(mapStateToProps, { setCategoriesLink, setCardsLight, setCardsLightMore, setCategoriesLinkParamPage, categoryToggle })(paramLight)
+export default connect(mapStateToProps, { setCategoriesLink, setCardsLight, setCategoriesLinkParamPage, categoryToggle })(paramLight)
 
 
 

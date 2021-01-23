@@ -5,25 +5,25 @@ import { connect } from 'react-redux';
 import { categoryToggle, setCategoriesLink } from '../../store/redusersLight/filterLight';
 import { useState, useEffect } from 'react';
 import { rootAPIsvet } from '../../API/api';
-import { setCardsLight, setCardsLightMore } from '../../store/redusersLight/cardsLight';
+import { setCardsLight } from '../../store/redusersLight/cardsLight';
 import { normalizeLight } from '../../normalaze/normalazeLight';
 import { initializeStore } from '../../store/store';
 import { useUpdateEffect } from '../../useHooks';
-import Axios from 'axios';
+import { setPaginator } from '../../store/reducers/paginator';
 
 
 
 
 
 
-function light({ filterLight, cardsLight, setCardsLight, setCardsLightMore, categoryToggle, newObj }) {
+function light({ filterLight, cardsLight, setCardsLight, categoryToggle, numberPage, res }) {
 
-    console.log(newObj);
 
     const title = 'Свет';
+    const url = 'catalog/light';
 
     const [option, setOption] = useState(1);
-    const [showNumber, setShowNumber] = useState(16);
+
     const [prelouder, setPrelouder] = useState(false);
     const [imageLoading, setImageLoding] = useState(false);
 
@@ -34,14 +34,10 @@ function light({ filterLight, cardsLight, setCardsLight, setCardsLightMore, cate
         setTimeout(() => {
             setPrelouder(false);
         }, 500)
-        return () => {
-            setShowNumber(12);
-        }
-    }, [])
+    }, [numberPage])
 
 
     const onchangeOptions = (event) => {
-        setShowNumber(16);
         setOption(event.target.value);
     }
 
@@ -49,23 +45,13 @@ function light({ filterLight, cardsLight, setCardsLight, setCardsLightMore, cate
     useUpdateEffect(() => {
         setPrelouder(true);
         setImageLoding(true);
-        rootAPIsvet.getLight('', option).then(response => {
+        rootAPIsvet.getLight('', option, numberPage).then(response => {
             setCardsLight(response.goods, response.showBtnMore);
             setPrelouder(false)
         })
 
     }, [option])
 
-    const showMore = () => {
-        setImageLoding(true);
-        setPrelouder(true)
-        setShowNumber(pre => pre + 16);
-
-        rootAPIsvet.getLightMore(showNumber, option).then(response => {
-            setCardsLightMore(response.goods, response.showBtnMore);
-            setPrelouder(false)
-        })
-    }
 
     const toggleCategory = (category, open) => {
         categoryToggle(category, open)
@@ -79,13 +65,13 @@ function light({ filterLight, cardsLight, setCardsLight, setCardsLightMore, cate
                     filterLight={filterLight}
                     title={title}
                     cardsLight={cardsLight}
-                    getGoodsMore={showMore}
                     onchangeOptions={onchangeOptions}
                     toggleCategory={toggleCategory}
                     prelouder={prelouder}
                     imageLoading={imageLoading}
                     option={option}
-                    pagination={newObj} />
+                    pagination={res}
+                    url={url} />
 
             </Container>
         </Layout >
@@ -97,7 +83,7 @@ const mapStateToProps = (state) => ({
     cardsLight: state.cardsLight
 })
 
-export default connect(mapStateToProps, { setCardsLight, setCardsLightMore, categoryToggle })(light)
+export default connect(mapStateToProps, { setCardsLight, categoryToggle })(light)
 
 
 
@@ -106,31 +92,27 @@ export async function getServerSideProps(ctx) {
     const { query } = ctx;
     const { resolvedUrl } = ctx;
 
-    console.log(ctx);
-
     let numberPage = 1;
+
     if (query.count) {
         numberPage = query.count;
     }
 
-    const res = await rootAPIsvet.getLight();
+
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
-
-
-    const newObj = await Axios.get(`https://server.arthouse-decor.ru/server_lights/app_with_pagination.php?page=lights&nmb_page=${numberPage}`).then(response => {
-        return response.data
-    });
+    const res = await rootAPIsvet.getLight('', '1', numberPage);
 
     const linkNormalize = await normalizeLight(res.catGoods);
 
-    dispatch(setCategoriesLink(linkNormalize))
-    dispatch(setCardsLight(newObj.goods, res.showBtnMore))
+    dispatch(setCategoriesLink(linkNormalize));
+    dispatch(setCardsLight(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
-            newObj,
+            numberPage,
             res,
             linkNormalize,
             initialReduxState: reduxStore.getState()
