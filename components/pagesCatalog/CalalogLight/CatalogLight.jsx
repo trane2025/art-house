@@ -7,10 +7,15 @@ import Prelouder from '../../UI/Prelouder';
 import CatalogNull from '../../CatalogList/CatalogNull';
 import Select from '../../UI/Select';
 import Pagination from '../../UI/Pagination';
+import { connect } from 'react-redux';
 
 
 
 function CatalogLight(props) {
+
+    const changePage = () => {
+        props.setPrelouder(true);
+    }
 
     return (
 
@@ -23,10 +28,10 @@ function CatalogLight(props) {
 
                         return (
                             <LinkCategories active={category.active} open={category.open} key={index} className="container-categories">
-                                <div className="title-links__container">
-                                    <Link href={'/catalog/light/[paramLight]'} as={`/catalog/light/${category.url}`} scroll={false}
+                                <div className="title-links__container" >
+                                    <Link href={'/catalog/light/[paramLight]'} as={`/catalog/light/${category.url}`}
                                         passHref={true}>
-                                        <a className="label-categories">{category.title}</a>
+                                        <a className="label-categories" onClick={changePage}>{category.title}</a>
                                     </Link>
 
                                     <i className='icon-arrow' onClick={() => { props.toggleCategory(category.id, !category.open) }}>
@@ -40,9 +45,9 @@ function CatalogLight(props) {
 
                                         const categoryItems = props.filterLight.entities.categoryItems[linkItem];
                                         return (
-                                            <CategoryesItem active={categoryItems.active} key={index} >
-                                                <Link href={`/catalog/light/[paramLight]`} as={`/catalog/light/${categoryItems.url}`} scroll={false}>
-                                                    <a>{categoryItems.title}</a>
+                                            <CategoryesItem active={categoryItems.active} key={index} onClick={changePage}>
+                                                <Link href={`/catalog/light/[paramLight]`} as={`/catalog/light/${categoryItems.url}`} >
+                                                    <a >{categoryItems.title}</a>
                                                 </Link>
                                             </CategoryesItem>
                                         )
@@ -79,7 +84,7 @@ function CatalogLight(props) {
                     })
                         : <CatalogNull />}
                 </CardsListStyle>
-                {<Pagination pagination={props.pagination} url={props.url} />}
+                {<Pagination pagination={props.pagination} url={props.url} option={props.option} />}
 
             </div>
         </StoreContainer>
@@ -88,6 +93,7 @@ function CatalogLight(props) {
 }
 
 export default CatalogLight;
+
 
 const CategoryesItem = styled.li`
     background-color: ${props => props.active ? '#FBD2A4' : 'none'};

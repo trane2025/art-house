@@ -1,6 +1,5 @@
 const SET_PAGINATOR = 'SET_PAGINATOR';
 const NEXT_PAGE = 'NEXT_PAGE';
-const PREV_PAGE = 'PREV_PAGE';
 
 
 const initialState = {
@@ -69,4 +68,3 @@ export default paginator;
 
 export const setPaginator = (arr) => ({ type: SET_PAGINATOR, arr });
 export const nextPage = (num) => ({ type: NEXT_PAGE, num })
-export const prevPage = (num) => ({ type: PREV_PAGE, num })

@@ -1,18 +1,14 @@
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { useUpdateEffect } from '../../useHooks';
-import { nextPage, prevPage, setPaginator } from '../../store/reducers/paginator';
-import next from 'next';
+import { nextPage, setPaginator } from '../../store/reducers/paginator';
+import { setPrelouder } from '../../store/reducers/prelouder';
 
 function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-function Pagination({ url, paginator, nextPage }) {
-
+function Pagination({ url, paginator, nextPage, setPrelouder, option }) {
 
     const onclickNext = () => {
 
@@ -32,7 +28,9 @@ function Pagination({ url, paginator, nextPage }) {
         else nextPage(0);
     }
 
-
+    const changePage = () => {
+        setPrelouder(true);
+    }
 
 
     return (
@@ -45,10 +43,27 @@ function Pagination({ url, paginator, nextPage }) {
                 </a>
             </SlideButton>}
             <WraperLinks>
+
+                {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== 1 && <>
+                    <Item>
+                        <Link href={{
+                            pathname: `/${url}`,
+                            query: { count: '1', option }
+                        }}>
+                            <LinkPagination>1</LinkPagination>
+                        </Link>
+                    </Item>
+                    <Item>
+                        ...
+                    </Item>
+                </>}
                 {!!paginator.arr.length && paginator.arr[paginator.numberActiveGroup].map((el, index) => {
                     return (
-                        <Item key={index}>
-                            <Link href={`/${url}?count=${el}`} >
+                        <Item key={index} onClick={changePage}>
+                            <Link href={{
+                                pathname: `/${url}`,
+                                query: { count: el, option }
+                            }} >
                                 <a>
                                     <LinkPagination activePage={paginator.activePage === el} >{el}</LinkPagination>
                                 </a>
@@ -62,7 +77,12 @@ function Pagination({ url, paginator, nextPage }) {
                         ...
                     </Item>
                     <Item>
-                        <Link href={`/${url}?count=${paginator.countAllPages}`}>
+                        <Link
+                            href={{
+                                pathname: `/${url}`,
+                                query: { count: paginator.countAllPages, option }
+                            }}
+                        >
                             <LinkPagination>{numberWithSpaces(paginator.countAllPages)}</LinkPagination>
                         </Link>
                     </Item>
@@ -83,14 +103,13 @@ const mapStateToProps = (state) => ({
     paginator: state.paginator
 });
 
-export default connect(mapStateToProps, { setPaginator, nextPage, prevPage })(Pagination);
+export default connect(mapStateToProps, { setPaginator, nextPage, setPrelouder })(Pagination);
 
 const Container = styled.li`
     margin-top: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
-    scroll-behavior: smooth;
 `;
 
 const SlideButton = styled.div`

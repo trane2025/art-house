@@ -9,35 +9,38 @@ import CatalogLight from '../../../components/pagesCatalog/CalalogLight/CatalogL
 
 import { normalizeLightParamPage } from '../../../normalaze/normalazeLight';
 import { initializeStore } from '../../../store/store';
-import { useUpdateEffect } from '../../../useHooks';
 import { setPaginator } from '../../../store/reducers/paginator';
+import { setPrelouder } from '../../../store/reducers/prelouder';
+import { useRouter } from 'next/router';
+import { useUpdateEffect } from '../../../useHooks';
 
 
 
 
-function paramLight({ title, query, filterLight, cardsLight, setCardsLight, categoryToggle, res, numberPage }) {
+function paramLight({ title, query, filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption }) {
 
-
+    const router = useRouter();
     const url = `catalog/light/${query}`;
 
-    const [prelouder, setPrelouder] = useState(false);
-    const [option, setOption] = useState(1);
+
+    const [option, setOption] = useState(selectOption);
     const [imageLoading, setImageLoding] = useState(false);
 
     const onchangeOptions = (event) => {
+        setPrelouder(true);
         setImageLoding(true);
         setOption(event.target.value);
+        router.push({
+            pathname: `/${url}`,
+            query: { option: event.target.value, count: numberPage }
+        })
     }
 
-
     useEffect(() => {
-        setOption(1);
+        setOption(selectOption);
         setImageLoding(true);
         setPrelouder(true);
-        setTimeout(() => {
-            setPrelouder(false);
-        }, 500);
-
+        setPrelouder(false);
     }, [query, numberPage])
 
 
@@ -45,13 +48,7 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, cate
         categoryToggle(category, open)
     }
 
-    useUpdateEffect(() => {
-        setPrelouder(true);
-        rootAPIsvet.getLight(query, option).then(response => {
-            setCardsLight(response.goods, response.showBtnMore);
-            setPrelouder(false);
-        })
-    }, [option])
+
 
 
     return (
@@ -66,8 +63,8 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, cate
                     prelouder={prelouder}
                     imageLoading={imageLoading}
                     option={option}
-                    pagination={res}
-                    url={url} />
+                    url={url}
+                    setPrelouder={setPrelouder} />
             </Container>
         </Layout >
     )
@@ -77,7 +74,8 @@ function paramLight({ title, query, filterLight, cardsLight, setCardsLight, cate
 
 const mapStateToProps = (state) => ({
     filterLight: state.filterLight,
-    cardsLight: state.cardsLight
+    cardsLight: state.cardsLight,
+    prelouder: state.prelouder
 })
 
 
@@ -89,12 +87,17 @@ export async function getServerSideProps(context) {
     const { dispatch } = reduxStore;
 
     let numberPage = 1;
+    let option = 1;
 
     if (context.query.count) {
         numberPage = context.query.count;
     }
 
-    const res = await rootAPIsvet.getLight(query, '1', numberPage)
+    if (context.query.count) {
+        option = context.query.option;
+    }
+
+    const res = await rootAPIsvet.getLight(query, option, numberPage)
 
     const linkNormalize = await normalizeLightParamPage(res.catGoods, query);
 
@@ -117,7 +120,7 @@ export async function getServerSideProps(context) {
     return {
         props: {
             numberPage,
-            res,
+            selectOption: option,
             query,
             title,
             initialReduxState: reduxStore.getState()
@@ -125,7 +128,7 @@ export async function getServerSideProps(context) {
     }
 }
 
-export default connect(mapStateToProps, { setCategoriesLink, setCardsLight, setCategoriesLinkParamPage, categoryToggle })(paramLight)
+export default connect(mapStateToProps, { setCategoriesLink, setCardsLight, setCategoriesLinkParamPage, categoryToggle, setPrelouder })(paramLight)
 
 
 

@@ -28,11 +28,6 @@ export const rootAPIsvet = {
             Axios.get(`https://server.arthouse-decor.ru/server_lights/app_with_pagination.php?page=lights&sort=${sort}&type=${type}&nmb_page=${page}`).then(response => response.data)
         )
     },
-    getLightMore(count, sort = '1', type = '') {
-        return (
-            Axios.get(`https://server.arthouse-decor.ru/server_lights/app.php?page=lights&type=${type}&count=${count}&sort=${sort}`).then(response => response.data)
-        )
-    },
     getProduct(id) {
         return (
             Axios.get(`https://server.arthouse-decor.ru/server_lights/app.php?id_tovar=${id}`).then(response => response.data)

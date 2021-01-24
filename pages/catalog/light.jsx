@@ -8,29 +8,28 @@ import { rootAPIsvet } from '../../API/api';
 import { setCardsLight } from '../../store/redusersLight/cardsLight';
 import { normalizeLight } from '../../normalaze/normalazeLight';
 import { initializeStore } from '../../store/store';
-import { useUpdateEffect } from '../../useHooks';
 import { setPaginator } from '../../store/reducers/paginator';
+import { setPrelouder } from '../../store/reducers/prelouder';
+import { useRouter } from 'next/router';
 
 
 
 
 
 
-function light({ filterLight, cardsLight, setCardsLight, categoryToggle, numberPage, res }) {
+function light({ filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption }) {
 
+    const router = useRouter();
 
     const title = 'Свет';
     const url = 'catalog/light';
 
-    const [option, setOption] = useState(1);
-
-    const [prelouder, setPrelouder] = useState(false);
+    const [option, setOption] = useState(selectOption);
     const [imageLoading, setImageLoding] = useState(false);
 
     useEffect(() => {
-        setOption(1);
-        setPrelouder(true);
         setImageLoding(true);
+        setPrelouder(true);
         setTimeout(() => {
             setPrelouder(false);
         }, 500)
@@ -39,18 +38,12 @@ function light({ filterLight, cardsLight, setCardsLight, categoryToggle, numberP
 
     const onchangeOptions = (event) => {
         setOption(event.target.value);
-    }
-
-
-    useUpdateEffect(() => {
         setPrelouder(true);
-        setImageLoding(true);
-        rootAPIsvet.getLight('', option, numberPage).then(response => {
-            setCardsLight(response.goods, response.showBtnMore);
-            setPrelouder(false)
+        router.push({
+            pathname: `/${url}`,
+            query: { option: event.target.value, count: numberPage }
         })
-
-    }, [option])
+    }
 
 
     const toggleCategory = (category, open) => {
@@ -70,8 +63,8 @@ function light({ filterLight, cardsLight, setCardsLight, categoryToggle, numberP
                     prelouder={prelouder}
                     imageLoading={imageLoading}
                     option={option}
-                    pagination={res}
-                    url={url} />
+                    url={url}
+                    setPrelouder={setPrelouder} />
 
             </Container>
         </Layout >
@@ -80,41 +73,49 @@ function light({ filterLight, cardsLight, setCardsLight, categoryToggle, numberP
 
 const mapStateToProps = (state) => ({
     filterLight: state.filterLight,
-    cardsLight: state.cardsLight
+    cardsLight: state.cardsLight,
+    prelouder: state.prelouder
 })
 
-export default connect(mapStateToProps, { setCardsLight, categoryToggle })(light)
+export default connect(mapStateToProps, { setCardsLight, categoryToggle, setPrelouder })(light)
 
 
 
 export async function getServerSideProps(ctx) {
 
     const { query } = ctx;
-    const { resolvedUrl } = ctx;
+
 
     let numberPage = 1;
+    let option = 1;
 
     if (query.count) {
         numberPage = query.count;
+    }
+
+    if (query.count) {
+        option = query.option;
     }
 
 
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
-    const res = await rootAPIsvet.getLight('', '1', numberPage);
 
-    const linkNormalize = await normalizeLight(res.catGoods);
+    const res = await rootAPIsvet.getLight('', option, numberPage);
+
+    const linkNormalize = normalizeLight(res.catGoods);
 
     dispatch(setCategoriesLink(linkNormalize));
     dispatch(setCardsLight(res.goods));
     dispatch(setPaginator(res));
 
+
+
     return {
         props: {
             numberPage,
-            res,
-            linkNormalize,
+            selectOption: option,
             initialReduxState: reduxStore.getState()
         }
     }
