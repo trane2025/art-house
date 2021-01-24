@@ -45,9 +45,9 @@ function CatalogLight(props) {
 
                                         const categoryItems = props.filterLight.entities.categoryItems[linkItem];
                                         return (
-                                            <CategoryesItem active={categoryItems.active} key={index} onClick={changePage}>
+                                            <CategoryesItem active={categoryItems.active} key={index} >
                                                 <Link href={`/catalog/light/[paramLight]`} as={`/catalog/light/${categoryItems.url}`} >
-                                                    <a >{categoryItems.title}</a>
+                                                    <a onClick={changePage}>{categoryItems.title}</a>
                                                 </Link>
                                             </CategoryesItem>
                                         )
