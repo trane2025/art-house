@@ -7,7 +7,7 @@ import NavbarContainer from '../Navbar/NavbarContainer';
 import YandexMetrica from '../YandexMetrica/YandexMetrica';
 
 
-function Layout({ children, title = 'Art-House', description }) {
+function Layout({ children, title = 'Art-House', description, resolvedUrl }) {
     return (
         <>
             <Head>
@@ -17,8 +17,9 @@ function Layout({ children, title = 'Art-House', description }) {
                 <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"></link>
                 <meta name='viewport' content='width=1200' />
             </Head>
+
             <YandexMetrica />
-            <BasketContainer />
+            <BasketContainer resolvedUrl={resolvedUrl} />
             <NavbarContainer />
             <Main />
             {children}

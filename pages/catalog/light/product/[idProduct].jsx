@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { rootAPIsvet } from '../../../../API/api';
 import CardCatalog from '../../../../components/Layout/CardCatalog';
 import Layout from '../../../../components/Layout/Layout';
@@ -8,15 +8,25 @@ import Container from '../../../../components/UI/Container';
 
 function IdProduct({ res }) {
 
+
+    const [imageLoading, setImageLoading] = useState(false);
+    const [imageSlide, setImageSlide] = useState([]);
+
     const article = res.article;
     const images = res.image.split(';');
 
+
     const imagesArr = images.filter(item => {
-        const formatImage = item.split('.')[2];
+        const formatImage = item.split('.')[3];
         if (formatImage === 'jpg' || formatImage === 'jpeg' || formatImage === 'png') {
             return item
         }
     })
+
+    useEffect(() => {
+        setImageSlide(imagesArr);
+        setImageLoading(true);
+    }, [])
 
 
 
@@ -28,6 +38,10 @@ function IdProduct({ res }) {
             label: splitItem[1], value: splitItem[0]
         }
     });
+
+    const stokBalance = param.find(item => item.label === " Остаток поставщика");
+
+
 
     const paramFilter = param.filter(item =>
         item.value !== ''
@@ -48,11 +62,13 @@ function IdProduct({ res }) {
                 <CardCatalog
                     card={res}
                     article={article}
-                    images={imagesArr}
+                    images={imageSlide}
                     title={title}
                     price={price}
                     id={res.id}
-                    specifications={paramFilter} />
+                    specifications={paramFilter}
+                    imageLoading={imageLoading}
+                    stokBalance={stokBalance} />
             </Container>
 
         </Layout>

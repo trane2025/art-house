@@ -1,102 +1,56 @@
 const TOGGLE_CHEKBOX = 'TOGGLE_CHEKBOX';
+const SET_FILTER = 'SET_FILTER';
+const CHANGE_RANGE = 'CHANGE_RANGE';
 
 
-let initialState = [
-    {
-        label: 'Стиль',
-        isShow: true,
-        items: [
-            { checkBoxName: 'Модерн', checked: false },
-            { checkBoxName: 'Класика', checked: false },
-            { checkBoxName: 'Хай-тек', checked: false },
-            { checkBoxName: 'Лофт', checked: false },
-        ]
-    },
-    {
-        label: 'Материал каркаса',
-        isShow: true,
-        items: [
-            { checkBoxName: 'Метал', checked: false },
-            { checkBoxName: 'Дерево', checked: false },
-            { checkBoxName: 'ЛДСП', checked: false },
-            { checkBoxName: 'МДФ', checked: false },
-        ]
-    },
-    {
-        label: 'Цвет каркаса',
-        isShow: false,
-        items: [
-            { checkBoxName: 'Черный', checked: false },
-            { checkBoxName: 'Белый', checked: false },
-            { checkBoxName: 'Золотой', checked: false },
-            { checkBoxName: 'Дубовый', checked: false },
-            { checkBoxName: 'Красный', checked: false },
-            { checkBoxName: 'Зелёный', checked: false },
-        ]
-    },
-    {
-        label: 'Страна',
-        isShow: false,
-        items: [
-            { checkBoxName: 'Малазия', checked: false },
-            { checkBoxName: 'Китай', checked: false },
-            { checkBoxName: 'Турция', checked: false },
-            { checkBoxName: 'Россия', checked: false },
-            { checkBoxName: 'Италия', checked: false },
-            { checkBoxName: 'Австралия', checked: false },
-        ]
-    },
-]
-
-initialState = initialState.map((el) => {
-    'Присваиваем id'
-    const label = el.label;
-    const isShow = el.isShow;
-    return {
-        label,
-        isShow,
-        items: [
-            ...el.items.map((item, index) => {
-                return {
-                    ...item,
-                    id: `${el.label}-${index + 1}`
-                }
-            })
-        ]
-    }
-
-})
-
-
+let initialState = [];
 
 
 const filter = (state = initialState, action) => {
     switch (action.type) {
+        case SET_FILTER:
+            return action.obj
         case TOGGLE_CHEKBOX:
-            return state.map((el) => {
-                return {
 
-                    label: el.label,
-                    items: [...el.items.map(item => {
-
-                        if (item.id === action.id) {
-                            return {
-                                ...item, checked: action.checked
-                            }
+            return {
+                ...state,
+                entities: {
+                    ...state.entities,
+                    checkBoxItems: {
+                        ...state.entities.checkBoxItems, [action.id]: {
+                            ...state.entities.checkBoxItems[action.id],
+                            checked: action.checked
                         }
-                        return {
-                            ...item
-                        }
-                    })]
+                    }
                 }
-            })
-
-
+            }
+        case CHANGE_RANGE:
+            let minItems = { ...state.entities.checkBoxItems[action.idMinCount] };
+            let maxItems = { ...state.entities.checkBoxItems[action.idMaxCount] };
+            maxItems.latName = action.max
+            minItems.latName = action.min
+            maxItems.checked = true
+            minItems.checked = true
+            return {
+                ...state,
+                entities: {
+                    ...state.entities,
+                    checkBoxItems: {
+                        ...state.entities.checkBoxItems,
+                        [action.idMaxCount]: maxItems,
+                        [action.idMinCount]: minItems
+                    }
+                }
+            }
         default: return state
     }
 }
 export default filter;
 
+
+export const setFilter = (obj) => ({ type: SET_FILTER, obj })
+
+export const changeRange = (min, max, idMinCount, idMaxCount) => ({ type: CHANGE_RANGE, min, max, idMinCount, idMaxCount });
 
 export const toggleCheckbox = (id, checked) => {
 

@@ -3,36 +3,63 @@ import FilterContainer from '../Filter/FilterContainer';
 import Prelouder from '../UI/Prelouder';
 import CatalogList from '../CatalogList/CatalogList'
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import CatalogNull from '../CatalogList/CatalogNull';
+import Pagination from '../UI/Pagination';
+import FilterWraper from '../UI/FilterWraper';
+import BreadCrumbs from '../UI/BreadCrumbs';
 
 
 
 function Catalog(props) {
 
-    const routing = useRouter();
+
+
+    const changePage = () => {
+        props.setPrelouder(true);
+    }
 
     return (
 
-        <StoreContainer marginBottom={props.typeGoodLinks === undefined}>
-            <FilterContainer />
+        <StoreContainer>
+            <FilterContainerAll>
+                <FilterWraper title='Каталог'>
+                    <CategoriesLinks>
+                        {props.pageLinks.map((link, index) => {
+
+                            return (
+                                <LinkCategories active={link.url === props.activeUrl} key={index} className="container-categories">
+
+                                    <Link href={`/${props.urlLink}/${link.url}`}>
+                                        <a className="label-categories" onClick={changePage}>{link.title}</a>
+                                    </Link>
+
+                                </LinkCategories>
+                            )
+                        })}
+                    </CategoriesLinks>
+                </FilterWraper>
+                <FilterContainer />
+            </FilterContainerAll>
+
             <div className="content-container">
+                <BreadCrumbs breadCrumbs={props.breadCrumbs} />
                 <h2 className='title-page'>{props.title}</h2>
-                {props.typeGoodLinks
+                {/* {props.typeGoodLinks
                     ? <TypeGoods>
                         {props.typeGoodLinks.map((link, index) => {
+
                             return (
-                                <Link href={`${props.linkRoute}/${link.href}`} key={index}>
-                                    <a>
+                                <Link href={`/${props.url}/${link.url}`} key={index}>
+                                    <a onClick={changePage}>
                                         <li>
-                                            <span>{link.label}</span>
+                                            <span>{link.title}</span>
                                         </li>
                                     </a>
                                 </Link>
                             )
                         })}
                     </TypeGoods>
-                    : null}
+                    : null} */}
 
                 <div className="container-sort">
                     <h3 className='label-sort'>Сортировать по</h3>
@@ -50,11 +77,12 @@ function Catalog(props) {
                             let typeLink = null;
 
                             if (props.typeGoodLinks) {
-                                typeLink = props.typeGoodLinks.find(link => link.type === item.type);
+                                typeLink = props.typeGoodLinks.find(link => link.id_cat === item.cat);
                             }
+
                             return <CatalogList
                                 key={item.id}
-                                href={`${routing.asPath}${typeLink ? '/' + typeLink.href : ''}/${item.id}`}
+                                href={`/${props.url}${typeLink ? '/' + typeLink.url : ''}/${item.id}`}
                                 item={item}
                                 image={item.picture}
                                 title={item.title}
@@ -69,7 +97,7 @@ function Catalog(props) {
                         : <CatalogNull />}
 
                 </CardsListStyle>
-                {props.prelouder === false && props.cardsGoods.showBtn != 0 && <button onClick={props.getGoodsMore} className='button-more' >Показать еще</button>}
+                <Pagination url={props.url} option={props.option} />
 
             </div>
         </StoreContainer>
@@ -78,6 +106,77 @@ function Catalog(props) {
 }
 
 export default Catalog;
+
+
+const FilterContainerAll = styled.div`
+
+`;
+
+
+const LinkCategories = styled.div`
+    border-bottom: 1px solid #F7D3C6;
+
+    .label-categories {
+        font-weight: 800;
+        font-size: 14px;
+        line-height: 22px;
+        color: #562F2F;
+        flex: 1;
+        padding: 10px 30px;
+        user-select: none;
+        display: block;
+        background: ${props => props.active ? '#FBD2A4' : 'none'};
+        transition: .3s;
+
+        :hover {
+            background-color: ${props => props.active ? '#FBD2A4' : 'white'};
+        }
+    }
+
+   
+
+    .title-links__container:last-child {
+    border-bottom:none;
+}
+
+
+    .label-categories {
+        
+    }
+
+
+    li {
+        padding-bottom: 5px;
+        :hover {
+            background-color: white;
+        }
+    }
+
+    .link__item {
+        font-size: 14px;
+        color: #562F2F;
+        font-weight: 400;
+        padding: 5px 30px;
+        display: flex;
+        align-items: center;
+
+        ::before {
+            content: '';
+            display: block;
+            min-width:5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #562F2F;
+            margin-right: 10px;
+        }
+    }
+`;
+
+const CategoriesLinks = styled.div`
+    div:last-child {
+        border: none;
+    }
+`;
 
 const TypeGoods = styled.ul`
     display: flex;
@@ -158,7 +257,7 @@ const StoreContainer = styled.div`
         letter-spacing: 0.1em;
         color: #562F2F;
         margin-top: 15px;
-        margin-bottom: ${props => props.marginBottom && '30px'};
+        margin-bottom: 15px;
     }
 
     .container-sort {

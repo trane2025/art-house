@@ -12,16 +12,14 @@ export const cardsSoftFurniture = (state = initialState, action) => {
         case SET_CARDS:
             if (action.arr) {
                 return {
-                    goods: [...action.arr],
-                    showBtn: action.showBtn
+                    goods: [...action.arr]
                 }
             }
             else return {
-                goods: action.arr,
+                goods: null,
                 showBtn: '0'
             }
         case SET_CARDS_MORE:
-            debugger;
             return {
                 goods: [...state.goods, ...action.arr],
                 showBtn: action.showBtn
@@ -31,7 +29,7 @@ export const cardsSoftFurniture = (state = initialState, action) => {
 }
 
 
-export const setCardsSoftFurniture = (arr, showBtn) => ({ type: SET_CARDS, arr, showBtn });
+export const setCardsSoftFurniture = (arr) => ({ type: SET_CARDS, arr });
 export const setCardsSoftFurnitureMore = (arr, showBtn) => ({ type: SET_CARDS_MORE, arr, showBtn });
 
 

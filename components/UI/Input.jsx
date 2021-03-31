@@ -11,8 +11,8 @@ function Input(props) {
             <input
                 type={props.type}
                 id={props.label}
+                autoFocus={props.autoFocus}
                 placeholder={props.placeholder}
-                autoFocus
                 value={props.value}
                 onChange={props.onChange} />
         </InputStyle>

@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import CatalogList from '../../CatalogList/CatalogList';
 import CatalogNull from '../../CatalogList/CatalogNull';
+import Pagination from '../../UI/Pagination';
 import Prelouder from '../../UI/Prelouder';
 
-function CatalogActions({ promo, goods, showBtn, showMoreGoods, prelouder }) {
+function CatalogActions({ promo, goods, prelouder, url, imageLoading }) {
 
     return (
         <ContainerAction>
@@ -22,7 +23,7 @@ function CatalogActions({ promo, goods, showBtn, showMoreGoods, prelouder }) {
                 {goods ? goods.map((item, index) => {
                     const image = item.picture.split(';');
                     const imagesArr = image.filter(item => {
-                        const formatImage = item.split('.')[2];
+                        const formatImage = item.split('.')[3];
                         if (formatImage === 'jpg' || formatImage === 'jpeg' || formatImage === 'png') {
                             return item
                         }
@@ -39,12 +40,12 @@ function CatalogActions({ promo, goods, showBtn, showMoreGoods, prelouder }) {
                         id={item.id}
                         sale={!!+item.sale}
                         oldPrice={item.old_price}
+                        imageLoading={imageLoading}
                     />
                 })
                     : <CatalogNull />}
-                {!prelouder && showBtn != 0 && <button onClick={showMoreGoods} className='button-more' >Показать еще</button>}
             </CardsListStyle>
-
+            <Pagination url={url} />
         </ContainerAction>
     )
 }

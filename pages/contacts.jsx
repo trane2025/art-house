@@ -25,7 +25,7 @@ function contact() {
                                         <p><span>Телефон: </span>+7 961 812 4245</p>
                                     </li>
                                     <li>
-                                        <p><span>Режим работы: </span>С 9:00 до 20:00 </p>
+                                        <p><span>Режим работы: </span>С 9:00 до 19:00 </p>
                                     </li>
                                     <li>
                                         <div className='wraper-social'>

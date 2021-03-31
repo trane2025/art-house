@@ -12,12 +12,11 @@ import { initializeStore } from '../../../store/store';
 import { setPaginator } from '../../../store/reducers/paginator';
 import { setPrelouder } from '../../../store/reducers/prelouder';
 import { useRouter } from 'next/router';
-import { useUpdateEffect } from '../../../useHooks';
 
 
 
 
-function paramLight({ title, query, filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption }) {
+function paramLight({ title, query, filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption, resolvedUrl }) {
 
     const router = useRouter();
     const url = `catalog/light/${query}`;
@@ -32,7 +31,7 @@ function paramLight({ title, query, filterLight, cardsLight, categoryToggle, num
         setOption(event.target.value);
         router.push({
             pathname: `/${url}`,
-            query: { option: event.target.value, count: numberPage }
+            query: { option: event.target.value, count: 1 }
         })
     }
 
@@ -52,7 +51,7 @@ function paramLight({ title, query, filterLight, cardsLight, categoryToggle, num
 
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
                 <CatalogLight
                     filterLight={filterLight}
@@ -82,6 +81,8 @@ const mapStateToProps = (state) => ({
 
 export async function getServerSideProps(context) {
 
+    const { resolvedUrl } = context;
+
     const query = context.query.paramLight;
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
@@ -93,7 +94,7 @@ export async function getServerSideProps(context) {
         numberPage = context.query.count;
     }
 
-    if (context.query.count) {
+    if (context.query.option) {
         option = context.query.option;
     }
 
@@ -123,6 +124,7 @@ export async function getServerSideProps(context) {
             selectOption: option,
             query,
             title,
+            resolvedUrl,
             initialReduxState: reduxStore.getState()
         }
     }

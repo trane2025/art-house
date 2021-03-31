@@ -9,9 +9,14 @@ const initialState = [];
 export const cardsGoods = (state = initialState, action) => {
     switch (action.type) {
         case SET_GOODS:
-            return {
-                goods: [...action.goods],
-                showBtn: action.showBtn
+            if (action.arr) {
+                return {
+                    goods: [...action.arr]
+                }
+            }
+            else return {
+                goods: null,
+                showBtn: '0'
             }
         case GET_GOODS_MORE:
             return {
@@ -22,21 +27,6 @@ export const cardsGoods = (state = initialState, action) => {
     }
 }
 
-export const setGoods = (goods, showBtn) => ({ type: SET_GOODS, goods, showBtn });
+export const setGoods = (arr) => ({ type: SET_GOODS, arr });
 export const setGoodsMore = (goods, showBtn) => ({ type: GET_GOODS_MORE, goods, showBtn });
 
-// export const getGots = () => {
-//     return dispatch => {
-//         rootAPI.getGoods().then(response => {
-//             dispatch(setGods(response));
-//         })
-//     }
-// }
-
-// export const getGotsMore = (number) => {
-//     return dispatch => {
-//         rootAPI.getGoodsMore(number).then(response => {
-//             dispatch(setGodsMore(response));
-//         })
-//     }
-// }

@@ -20,7 +20,11 @@ function NavbarContaier(props) {
             alert('Вы ничего не указали!')
         }
         else {
-            router.push(`/search?value=${inputSearch}`);
+            router.push({
+                pathname: `/search`,
+                query: { value: inputSearch }
+            });
+
         }
     }
 

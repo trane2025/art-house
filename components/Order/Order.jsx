@@ -91,7 +91,7 @@ function Order({ basket, removeBasket }) {
                         <form onSubmit={event => postOrder(event)}>
                             <div className="container-input">
                                 <div className="row-input">
-                                    <Input type='text' label='ФИО' placeholder='Укажите ваше ФИО' value={name} onChange={event => setName(event.target.value)} />
+                                    <Input type='text' label='ФИО' placeholder='Укажите ваше ФИО' value={name} onChange={event => setName(event.target.value)} autoFocus />
                                     <InputPhoneMask type='text' label='Телефон' placeholder='+7 (___) ___ ____' value={phone} onChange={event => setPhone(event.target.value)} />
                                 </div>
                                 <div className="row-input">

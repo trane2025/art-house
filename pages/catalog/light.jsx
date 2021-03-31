@@ -17,7 +17,9 @@ import { useRouter } from 'next/router';
 
 
 
-function light({ filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption }) {
+function light({ filterLight, cardsLight, categoryToggle, numberPage, setPrelouder, prelouder, selectOption, resolvedUrl }) {
+
+
 
     const router = useRouter();
 
@@ -41,7 +43,7 @@ function light({ filterLight, cardsLight, categoryToggle, numberPage, setPreloud
         setPrelouder(true);
         router.push({
             pathname: `/${url}`,
-            query: { option: event.target.value, count: numberPage }
+            query: { option: event.target.value, count: 1 }
         })
     }
 
@@ -51,7 +53,7 @@ function light({ filterLight, cardsLight, categoryToggle, numberPage, setPreloud
     }
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
 
                 <CatalogLight
@@ -83,7 +85,10 @@ export default connect(mapStateToProps, { setCardsLight, categoryToggle, setPrel
 
 export async function getServerSideProps(ctx) {
 
+    console.log(ctx);
+
     const { query } = ctx;
+    const { resolvedUrl } = ctx;
 
 
     let numberPage = 1;
@@ -93,7 +98,7 @@ export async function getServerSideProps(ctx) {
         numberPage = query.count;
     }
 
-    if (query.count) {
+    if (query.option) {
         option = query.option;
     }
 
@@ -116,6 +121,7 @@ export async function getServerSideProps(ctx) {
         props: {
             numberPage,
             selectOption: option,
+            resolvedUrl,
             initialReduxState: reduxStore.getState()
         }
     }

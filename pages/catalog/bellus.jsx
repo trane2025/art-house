@@ -8,55 +8,46 @@ import { setCategoriesLink } from '../../store/redusersSoftFurniture/filterSoftF
 import { useEffect, useState } from 'react';
 
 import { initializeStore } from '../../store/store'
+import { setPaginator } from '../../store/reducers/paginator';
+import { setPrelouder } from '../../store/reducers/prelouder';
 
 
 
 
 
 
-function softfurniture({ setCardsSoftFurnitureMore, catalog, filter }) {
+function softfurniture({ catalog, filter, setPrelouder, prelouder, numberPage, resolvedUrl }) {
 
     const title = 'Мягкая мебель'
+    const url = 'catalog/bellus';
 
-    const [showNumber, setShowNumber] = useState(16);
-    const [prelouder, setPrelouder] = useState(false);
     const [imageLoading, setImageLoding] = useState(false);
 
 
 
     useEffect(() => {
-        setPrelouder(true);
         setImageLoding(true);
+        setPrelouder(true);
         setTimeout(() => {
             setPrelouder(false);
         }, 500)
-        return () => {
-            setShowNumber(12);
-        }
-    }, [])
+    }, [numberPage])
 
-    const showMore = () => {
-        setImageLoding(true)
-        setPrelouder(true)
-        setShowNumber(pre => pre + 16);
 
-        rootAPIsoftfurniture.getMore(showNumber).then(response => {
-            console.log(response);
-            setCardsSoftFurnitureMore(response.goods, response.showBtnMore);
-            setPrelouder(false)
-        })
-    }
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
                 <CatalogSoftFurniture
                     title={title}
                     filter={filter}
                     catalog={catalog}
                     prelouder={prelouder}
-                    getGoodsMore={showMore}
-                    imageLoading={imageLoading} />
+                    imageLoading={imageLoading}
+                    setPrelouder={setPrelouder}
+                    option={1}
+                    url={url}
+                    setPrelouder={setPrelouder} />
             </Container>
         </Layout >
     )
@@ -64,28 +55,38 @@ function softfurniture({ setCardsSoftFurnitureMore, catalog, filter }) {
 
 const mapStateToProps = (state) => ({
     catalog: state.cardsSoftFurniture,
-    filter: state.filterSoftFurniture
+    filter: state.filterSoftFurniture,
+    prelouder: state.prelouder
 })
 
-export default connect(mapStateToProps, { setCardsSoftFurniture, setCategoriesLink, setCardsSoftFurnitureMore })(softfurniture)
+export default connect(mapStateToProps, { setPrelouder })(softfurniture)
 
 
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ query, resolvedUrl }) {
 
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
-    const res = await rootAPIsoftfurniture.getGoods();
+    let numberPage = 1;
+
+
+    if (query.count) {
+        numberPage = query.count;
+    }
+
+    const res = await rootAPIsoftfurniture.getGoods('', '', numberPage);
+
 
     dispatch(setCategoriesLink(res.catGoods));
-    dispatch(setCardsSoftFurniture(res.goods, res.showBtnMore));
-
+    dispatch(setCardsSoftFurniture(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
-            initialReduxState: reduxStore.getState(),
-            res
+            numberPage,
+            resolvedUrl,
+            initialReduxState: reduxStore.getState()
         }
     }
 }

@@ -2,14 +2,15 @@ import React from 'react';
 import ButtonFilter from '../UI/ButtonFilter';
 import styled from 'styled-components';
 import FilterItem from './FilterItem/FilterItem';
+import FilterItemRange from './FilterItem/FilterItemRange';
 
 
 
 
-function Filter(props) {
+function Filter({ filter, toggleCheckbox, filterArrServer, clearFilter }) {
     return (
         <FilterStyle>
-            <form onSubmit={event => (event.preventDefault())}>
+            <div>
                 <div className='filter-title'>
                     <h3>
                         <svg width="12" height="10" viewBox="0 0 12 10" fill="none" className='filter-icon'>
@@ -22,22 +23,38 @@ function Filter(props) {
                     </h3>
                 </div>
 
-                {props.filterItems.map((itemFilter, index) => {
-                    return (
+                {filter.result && filter.result.map((key, index) => {
+
+                    const itemFilter = filter.entities.checkBox[key];
+
+                    if (itemFilter.type === 'int') {
+                        return (
+                            <FilterItemRange
+                                key={index + itemFilter.label}
+                                title={itemFilter.label}
+                                items={filter.entities.checkBoxItems}
+                                itemsKey={itemFilter.items}
+                                toggleCheckbox={toggleCheckbox}
+                                isShow={itemFilter.isShow} />
+                        )
+                    }
+                    else return (
                         <FilterItem
                             key={index}
                             title={itemFilter.label}
-                            items={itemFilter.items}
-                            toggleCheckbox={props.toggleCheckbox}
+                            items={filter.entities.checkBoxItems}
+                            itemsKey={itemFilter.items}
+                            toggleCheckbox={toggleCheckbox}
                             isShow={itemFilter.isShow}
                         />
                     )
                 })}
+
                 <div className="button-container">
-                    <ButtonFilter primery type='submit' onClick={event => event.preventDefault()}>Показать</ButtonFilter>
-                    <ButtonFilter>Очистить</ButtonFilter>
+                    <ButtonFilter primery onClick={filterArrServer}>Показать</ButtonFilter>
+                    <ButtonFilter onClick={clearFilter}>Очистить</ButtonFilter>
                 </div>
-            </form>
+            </div>
         </FilterStyle>
     )
 }
@@ -45,6 +62,7 @@ function Filter(props) {
 export default Filter;
 
 const FilterStyle = styled.section`
+    margin-top: 15px;
     padding: 15px 0;
     padding-bottom: 0;
     min-width: 270px;

@@ -80,11 +80,12 @@ function CatalogLight(props) {
                             sale={!!+item.sale}
                             oldPrice={item.old_price}
                             imageLoading={props.imageLoading}
+                            stokBalance={item.balance}
                         />
                     })
                         : <CatalogNull />}
                 </CardsListStyle>
-                {<Pagination pagination={props.pagination} url={props.url} option={props.option} />}
+                <Pagination url={props.url} option={props.option} />
 
             </div>
         </StoreContainer>

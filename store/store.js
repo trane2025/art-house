@@ -14,6 +14,7 @@ import { filterSoftFurniture } from './redusersSoftFurniture/filterSoftFurniture
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { useMemo } from 'react';
 import prelouder from './reducers/prelouder';
+import breadCrumbs from './reducers/breadCrumbs';
 
 
 
@@ -35,7 +36,8 @@ const reducers = combineReducers({
     cardsSoftFurniture,
     filterSoftFurniture,
     paginator,
-    prelouder
+    prelouder,
+    breadCrumbs
 })
 
 function initStore(preloadedState = initialState) {

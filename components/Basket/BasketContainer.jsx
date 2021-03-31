@@ -6,6 +6,9 @@ import BasketOrder from './BasketOrder';
 
 const BasketContainer = (props) => {
 
+
+
+
     useEffect(() => {
         const checkBasket = localStorage.getItem('basket');
 
@@ -23,7 +26,7 @@ const BasketContainer = (props) => {
             return arr[key];
         })
         props.setProductBasket(basketArr);
-    }, []);
+    }, [props.resolvedUrl]);
 
 
     const deleteProduct = (title, id) => {

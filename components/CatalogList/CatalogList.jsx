@@ -9,7 +9,7 @@ function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-function CardsList({ href, image, title, article, country, price, material, productArr, basket, id, setProductBasket, sale, oldPrice, saleStyle, imageLoading }) {
+function CardsList({ href, image, title, article, country, price, material, productArr, basket, id, setProductBasket, sale, oldPrice, saleStyle, imageLoading, stokBalance }) {
 
 
     const BASKET_KEY = `basket-${title}-${id}`
@@ -139,6 +139,7 @@ function CardsList({ href, image, title, article, country, price, material, prod
                     {descriptionBtn}
                 </button>
             </Buttons>
+            {stokBalance && <p className='stok-balance'>{stokBalance === "0" ? 'Нет в наличии' : `Остаток поставщика: ${stokBalance}`}</p>}
         </Card >
     )
 }
@@ -245,6 +246,11 @@ const Card = styled.li`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+
+    .stok-balance {
+        text-align: center;
+        font-size: 12px;
+    }
 
     :hover {
         box-shadow: 0px 0px 15px #e0d8d0;

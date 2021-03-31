@@ -6,58 +6,38 @@ import CatalogDecor from '../../components/pagesCatalog/CatalogDecor/CatalogDeco
 import { connect } from 'react-redux';
 import { categoryToggleDecor, setCategoriesLinkDecor } from '../../store/redusersDecor/filterDecor';
 import { useState, useEffect } from 'react';
-import { setCardsDecor, setCardsDecorMore } from '../../store/redusersDecor/cardsDecor';
+import { setCardsDecor } from '../../store/redusersDecor/cardsDecor';
 import Prelouder from '../../components/UI/Prelouder';
 import { normalizeDecor } from '../../normalaze/normalazeDecor';
 import { initializeStore } from '../../store/store';
-import { useUpdateEffect } from '../../useHooks';
+import { setPrelouder } from '../../store/reducers/prelouder';
+import { setPaginator } from '../../store/reducers/paginator';
 
 
-function decor({ filterDecor, setCardsDecor, cardsDecor, categoryToggleDecor, setCardsDecorMore }) {
+function decor({ filterDecor, cardsDecor, categoryToggleDecor, setPrelouder, prelouder, selectOption, numberPage, resolvedUrl }) {
 
     const title = 'Гарда-декор';
+    const url = 'catalog/garda';
 
     const [imageLoading, setImageLoding] = useState(false);
-    const [option, setOption] = useState(1);
-    const [showNumber, setShowNumber] = useState(12);
-    const [prelouder, setPrelouder] = useState(false);
+    const [option, setOption] = useState(selectOption);
+    const router = useRouter();
 
 
     useEffect(() => {
-        setOption(1);
-        setPrelouder(true);
         setImageLoding(true);
+        setPrelouder(true);
         setTimeout(() => {
             setPrelouder(false);
         }, 500)
-        return () => {
-            setShowNumber(12);
-        }
-    }, [])
+    }, [numberPage])
 
     const onchangeOptions = (event) => {
-        setImageLoding(true);
-        setShowNumber(12);
         setOption(event.target.value);
-    }
-
-    useUpdateEffect(() => {
-        setPrelouder(true)
-        rootAPIdecor.getDecor('', option).then(response => {
-            setCardsDecor(response.goods, response.showBtnMore);
-            setPrelouder(false)
-        });
-    }, [option])
-
-
-    const showMore = () => {
-        setImageLoding(true);
-        setPrelouder(true)
-        setShowNumber(pre => pre + 12);
-
-        rootAPIdecor.getDecorMore(showNumber, '', option).then(response => {
-            setCardsDecorMore(response.goods, response.showBtnMore);
-            setPrelouder(false)
+        setPrelouder(true);
+        router.push({
+            pathname: `/${url}`,
+            query: { option: event.target.value, count: 1 }
         })
     }
 
@@ -66,18 +46,20 @@ function decor({ filterDecor, setCardsDecor, cardsDecor, categoryToggleDecor, se
     }
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
                 {filterDecor
                     ? <CatalogDecor
-                        getGoodsMore={showMore}
                         filter={filterDecor}
                         cards={cardsDecor}
                         title={title}
                         toggleCategory={toggleCategory}
                         onchangeOptions={onchangeOptions}
                         prelouder={prelouder}
-                        imageLoading={imageLoading} />
+                        imageLoading={imageLoading}
+                        option={option}
+                        url={url}
+                        setPrelouder={setPrelouder} />
                     : <Prelouder />
                 }
 
@@ -88,25 +70,43 @@ function decor({ filterDecor, setCardsDecor, cardsDecor, categoryToggleDecor, se
 
 const mapStateToProps = (state) => ({
     filterDecor: state.filterDecor,
-    cardsDecor: state.cardsDecor
+    cardsDecor: state.cardsDecor,
+    prelouder: state.prelouder
 })
 
-export default connect(mapStateToProps, { setCategoriesLinkDecor, setCardsDecor, categoryToggleDecor, setCardsDecorMore })(decor);
+export default connect(mapStateToProps, { categoryToggleDecor, setPrelouder })(decor);
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ query, resolvedUrl }) {
+
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
+    let numberPage = 1;
+    let option = 1;
 
-    const res = await rootAPIdecor.getDecor().then(response => {
-        return response
-    })
+    if (query.count) {
+        numberPage = query.count;
+    }
+
+    if (query.option) {
+        option = query.option;
+    }
+
+
+    const res = await rootAPIdecor.getDecor('', option, numberPage);
+
+
+
 
     dispatch(setCategoriesLinkDecor(normalizeDecor(res.catGoods)));
-    dispatch(setCardsDecor(res.goods, res.showBtnMore));
+    dispatch(setCardsDecor(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
+            numberPage,
+            selectOption: option,
+            resolvedUrl,
             initialReduxState: reduxStore.getState()
         }
     }

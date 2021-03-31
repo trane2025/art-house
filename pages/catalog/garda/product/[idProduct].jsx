@@ -1,10 +1,15 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { rootAPIdecor } from '../../../../API/api';
 import CardCatalog from '../../../../components/Layout/CardCatalog';
 import Layout from '../../../../components/Layout/Layout';
 import Container from '../../../../components/UI/Container';
 
 function IdProduct({ res }) {
+
+
+
+    const [imageLoading, setImageLoading] = useState(false);
+    const [imageSlide, setImageSlide] = useState([]);
 
     const pictures = res.images.split(";");
     const images = pictures.filter(item => item !== '');
@@ -17,12 +22,35 @@ function IdProduct({ res }) {
         }
     })
 
+    const setStock = () => {
+
+        let stock;
+        if (res.stock > 5) {
+            stock = 'больше 5'
+        }
+        else if (res.stock < 5 && res.stock !== '0') {
+            stock = res.stock
+        }
+        else {
+            stock = false
+        }
+
+        return stock;
+    }
+
+
+    const stock = setStock();
     const width = res.size.split('/')[0];
     const height = res.size.split('/')[1];
     const lenght = res.size.split('/')[2];
     const article = res.article;
     const title = res.title;
     const price = res.price;
+
+    useEffect(() => {
+        setImageSlide(imagesArr);
+        setImageLoading(true);
+    }, [])
 
 
     const param = [
@@ -43,11 +71,13 @@ function IdProduct({ res }) {
                 <CardCatalog
                     card={res}
                     article={article}
-                    images={imagesArr}
+                    images={imageSlide}
                     title={title}
                     price={price}
                     id={res.id}
-                    specifications={paramFilter} />
+                    specifications={paramFilter}
+                    imageLoading={imageLoading}
+                    stock={stock} />
             </Container>
 
         </Layout>

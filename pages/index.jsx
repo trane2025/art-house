@@ -1,14 +1,24 @@
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import styled from 'styled-components';
-import { rootAPIactions } from '../API/api';
+import { rootAPIactions, rootAPIdecor, rootAPIsvet } from '../API/api';
 import Advanteges from '../components/Advatages/Advanteges';
 import Brends from '../components/Brends/Brends';
 import Layout from '../components/Layout/Layout';
+import CatalogHomePage from '../components/pagesCatalog/CatalogHomePage/CatalogHomePage';
 import SwiperSlider from '../components/Sliders/SwiperSlider';
 import Button from '../components/UI/Button';
 import Container from '../components/UI/Container';
 
 
-export default function Index({ res }) {
+export default function Index({ res, randomGoods }) {
+
+    const { push } = useRouter();
+
+    const goHomePage = () => {
+        push('/about');
+    }
+
     return (
         <Layout
             title='Магазин освещения и предметов интерьера «Art&House» в Астрахани. Огромный выбор люстр, бра, светильников'
@@ -38,41 +48,27 @@ export default function Index({ res }) {
                             <Button disabled={true}>Рекомендуемые товары</Button>
                         </li>
                         <li className="button-item">
-                            <Button >Новые товары</Button>
+                            <Button >Гарда-декор</Button>
                         </li>
                         <li className="button-item">
                             <Button disabled={true}>Хиты продаж</Button>
                         </li>
                     </ul>
                     <GoodsHomePage>
-                        <li>
-                            <div className="goods-image__wraper">
-                                <img src="/images/homePage/image 6-1.jpg" alt="товар home-Page" />
-                            </div>
-                            <h4>БРА GLOBO 15053W LENIUS</h4>
-                            <Button>В корзину</Button>
-                        </li>
-                        <li>
-                            <div className="goods-image__wraper">
-                                <img src="/images/homePage/image 6.jpg" alt="товар home-Page" />
-                            </div>
-                            <h4>Настенный уличный фонарь Newport 44282/06</h4>
-                            <Button>В корзину</Button>
-                        </li>
-                        <li>
-                            <div className="goods-image__wraper">
-                                <img src="/images/homePage/image 7.jpg" alt="товар home-Page" />
-                            </div>
-                            <h4>Настенный уличный фонарь Newport 44282/06</h4>
-                            <Button>В корзину</Button>
-                        </li>
-                        <li>
-                            <div className="goods-image__wraper">
-                                <img src="/images/homePage/image 8.jpg" alt="товар home-Page" />
-                            </div>
-                            <h4>Спот Lucide Ride LED 26956/05/17</h4>
-                            <Button>В корзину</Button>
-                        </li>
+                        {randomGoods.map(item => {
+
+                            return (
+                                <CatalogHomePage
+                                    key={item.id + item.title}
+                                    id={item.id}
+                                    picture={item.picture}
+                                    price={item.price}
+                                    title={item.title}
+                                    productArr={item}
+                                    stokBalance={item.stock} />
+                            )
+                        })}
+
                     </GoodsHomePage>
                 </Container>
             </NewArrival>
@@ -87,7 +83,7 @@ export default function Index({ res }) {
                         <p>Опытные специалисты всегда смогут проконсультировать вас по любым вопросам, связанным с техническими характеристиками или особенностями монтажа тех или иных светильников. А в разделе статьи вы сможете найти интересные материалы, которые помогут определиться с выбором нужного светильника</p>
 
                         <div className="container-button">
-                            <Button>Подробнее</Button>
+                            <Button onClick={goHomePage}>Подробнее</Button>
                         </div>
                     </div>
 
@@ -107,11 +103,40 @@ export default function Index({ res }) {
 
 export async function getServerSideProps() {
 
+    function randomInteger(min, max) {
+        let rand = min + Math.random() * (max + 1 - min);
+        return Math.floor(rand);
+    }
+
+    const option = 1;
+    const numberPage = 1;
+
     const res = await rootAPIactions.getActions();
+    const getGoods = await rootAPIdecor.getDecor('svet', option, numberPage);
+
+    const getRandomGoods = () => {
+        let containersGoods = [];
+        let current = 0;
+
+        for (let i = 0; i < 4; i++) {
+            containersGoods.push([]);
+            for (let j = 0; j < 4; j++) {
+                containersGoods[i].push(getGoods.goods[current]);
+                current++
+            }
+        }
+        return containersGoods;
+    }
+
+    const goodsContainer = getRandomGoods();
+
+
 
     return {
         props: {
-            res
+            res,
+            getGoods,
+            randomGoods: goodsContainer[randomInteger(0, 3)]
         }
     }
 }
@@ -147,23 +172,6 @@ const GoodsHomePage = styled.ul`
     display: flex;
     margin-left: -15px;
     margin-right: -15px;
-
-    h4 {
-        text-align: center;
-        margin: 10px 0;
-    }
-
-
-    li {
-        background: white;
-        margin: 0 15px;
-        width: calc(25% - 30px);
-        padding:30px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center
-    }
 `;
 
 const NewArrival = styled.div`

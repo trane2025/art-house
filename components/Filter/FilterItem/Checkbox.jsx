@@ -23,7 +23,7 @@ function Checkbox(props) {
 
 export default Checkbox
 
-const CheckBoxStyle = styled.div`
+const CheckBoxStyle = styled.li`
 
     animation-name: fade;
     animation-duration: .8s;
@@ -34,7 +34,7 @@ const CheckBoxStyle = styled.div`
         padding: 0 30px;
         display: flex;
         align-items: center;
-        padding-bottom: 10px;
+        padding-bottom: 5px;
     }
 
     input {
@@ -44,7 +44,7 @@ const CheckBoxStyle = styled.div`
     .label-checkbox {
         cursor: pointer;
         color: #562F2F;
-        font-size: 14px;
+        font-size: 12px;
         font-weight: 400;
     }
 
@@ -52,6 +52,8 @@ const CheckBoxStyle = styled.div`
         margin-right: 10px;
         width: 16px;
         height: 16px;
+        min-width: 16px;
+        min-height: 16px;
         background: #FFFFFF;
         border: 1px solid #F7D3C6;
         display: flex;

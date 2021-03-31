@@ -1,6 +1,5 @@
 import { normalize, schema } from "normalizr";
 
-
 export const normalizeLight = (arr, query) => {
 
     const category = arr.filter(item => item.parent_id === '0');

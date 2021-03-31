@@ -5,12 +5,16 @@ import CatalogList from '../../CatalogList/CatalogList';
 import Prelouder from '../../UI/Prelouder';
 import CatalogNull from '../../CatalogList/CatalogNull';
 import Select from '../../UI/Select';
+import Pagination from '../../UI/Pagination';
 
 
 
 function CatalogDecor(props) {
-    return (
+    const changePage = () => {
+        props.setPrelouder(true);
+    }
 
+    return (
         <StoreContainer marginBottom={props.typeGoodLinks === undefined}>
             <FilterWraper title='Каталог'>
                 <CategoriesLinks>
@@ -21,7 +25,7 @@ function CatalogDecor(props) {
                                 <div className="title-links__container">
                                     <Link href={'/catalog/garda/[paramLight]'} as={`/catalog/garda/${category.url}`}
                                         passHref={true} scroll={false}>
-                                        <a className="label-categories">{category.title}</a>
+                                        <a className="label-categories" onClick={changePage}>{category.title}</a>
                                     </Link>
 
                                     {category.categoryItems.length !== 0 &&
@@ -45,7 +49,7 @@ function CatalogDecor(props) {
                                                             </svg>
                                                         </i>}
                                                     <Link href={`/catalog/garda/[paramLight]`} as={`/catalog/garda/${categoryItem.url}`} scroll={false}>
-                                                        <a className='link__item' >
+                                                        <a className='link__item' onClick={changePage}>
                                                             {categoryItem.title}
                                                         </a>
                                                     </Link>
@@ -55,7 +59,7 @@ function CatalogDecor(props) {
                                                         const childsItem = (props.filter.entities.childsItems[child]);
                                                         return (
                                                             <Link key={child.title + '-' + index} href={`/catalog/garda/[paramLight]`} as={`/catalog/garda/${childsItem.url}`} scroll={false}>
-                                                                <LinkChild active={childsItem.active} >
+                                                                <LinkChild active={childsItem.active} onClick={changePage}>
                                                                     {childsItem.title}
                                                                 </LinkChild>
                                                             </Link>
@@ -102,10 +106,12 @@ function CatalogDecor(props) {
                                 sale={!!+item.sale}
                                 oldPrice={item.old_price}
                                 imageLoading={props.imageLoading}
+                                stokBalance={item.stock}
                             />
                         }) : <CatalogNull />}
                 </CardsListStyle>
-                {!props.prelouder && props.cards.showBtn != 0 && <button onClick={props.getGoodsMore} className='button-more' >Показать еще</button>}
+                <Pagination url={props.url} option={props.option} />
+                {/* {!props.prelouder && props.cards.showBtn != 0 && <button onClick={props.getGoodsMore} className='button-more' >Показать еще</button>} */}
 
             </div>
         </StoreContainer>

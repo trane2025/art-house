@@ -5,12 +5,28 @@ import { setProductBasket } from '../../store/reducers/basket';
 import SliderCard from '../Sliders/SliderCard';
 import ButtonIcon from '../UI/ButtonIcon';
 import { useRouter } from 'next/dist/client/router';
+import BreadCrumbs from '../UI/BreadCrumbs';
 
 function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-function CardCatalog({ card, basket, setProductBasket, article, images, title, description, price, param, specifications }) {
+function CardCatalog({
+    card,
+    basket,
+    setProductBasket,
+    article,
+    images,
+    title,
+    description,
+    price,
+    param,
+    specifications,
+    imageLoading,
+    stock,
+    breadCrumbs,
+    stokBalance
+}) {
 
 
 
@@ -63,17 +79,22 @@ function CardCatalog({ card, basket, setProductBasket, article, images, title, d
         setBtnSuccess(false);
     }
 
-    const [toggleActiveBtn, setToggleActiveBtn] = useState('description');
+    const [toggleActiveBtn, setToggleActiveBtn] = useState('props');
 
 
     return (
         <>
+            <WraperCrumbs>
+                {breadCrumbs && <BreadCrumbs breadCrumbs={breadCrumbs} />}
+                <LinkBack onClick={() => { router.back() }}>Назад</LinkBack>
+            </WraperCrumbs>
+
             <TitleCards>{title}</TitleCards>
             <Article>
                 <p><span>{`Артикул: `}</span>{article}</p>
             </Article>
             <CardContainer>
-                <SliderCard imagesCards={images} />
+                <SliderCard imagesCards={images} imageLoading={imageLoading} />
 
                 <DescriptionCard>
                     <Price>
@@ -92,29 +113,25 @@ function CardCatalog({ card, basket, setProductBasket, article, images, title, d
                                 В корзине
                             </button>
                         </Buttons>
-                        <div className="back-btn__wraper">
-                            <ButtonIcon onClick={() => { router.back() }}
-                                icon={<svg width="8" height="13" viewBox="0 0 8 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6.62927 2L1.99998 6.82218L6.62927 11.6444" stroke="#5B1717" strokeWidth="2" strokeLinecap="round" />
-                                </svg>}>Назад</ButtonIcon>
-                        </div>
+                        {stock && <StokText>{`Главный склад: ${stock}`}</StokText>}
+                        {stokBalance && <StokText>{`${stokBalance.label}: ${stokBalance.value}`}</StokText>}
                     </Price>
                     <DeliveryInfo>
                         <h4>Доставка</h4>
                         <p>Интернет-заказы обрабатываются ежедневно</p>
-                        <p className='delivery-data'>ПН-ПТ 9:00 - 22:00 СБ-ВС 10:00 - 22:00</p>
+                        <p className='delivery-data'>ПН-ПТ 9:00 - 19:00 СБ-ВС 10:00 - 19:00</p>
                         <p>Заказы, оформленные в нерабочее время и выходные, обрабатываются на следующий рабочий день</p>
                     </DeliveryInfo>
                 </DescriptionCard>
             </CardContainer>
 
             <ToggleBtn>
-                <Btn active={'description' === toggleActiveBtn} onClick={() => setToggleActiveBtn('description')}>
-                    <p>Описание</p>
-                </Btn>
                 <Btn active={'props' === toggleActiveBtn} onClick={() => setToggleActiveBtn('props')}>
                     <p>Характеристики</p>
                 </Btn>
+                {/* <Btn active={'description' === toggleActiveBtn} onClick={() => setToggleActiveBtn('description')}>
+                    <p>Описание</p>
+                </Btn> */}
             </ToggleBtn>
 
             {description && 'description' === toggleActiveBtn && <Description dangerouslySetInnerHTML={{ __html: `${description}` }}></Description>}
@@ -157,6 +174,21 @@ const mapStateToProps = (state) => ({
 
 
 export default connect(mapStateToProps, { setProductBasket })(CardCatalog);
+
+const LinkBack = styled.span`
+    cursor: pointer;
+`;
+
+const WraperCrumbs = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const StokText = styled.p`
+    margin-top: 15px;
+    color: #a28686;
+    font-size: 14px;
+`;
 
 const ToggleBtn = styled.ul`
     display: flex;

@@ -13,7 +13,6 @@ function actions({ res }) {
 
     const { actions } = res;
 
-
     return (
         <Layout title='Акции'>
             <Container>

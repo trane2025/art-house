@@ -11,12 +11,11 @@ export const cardsDecor = (state = initialState, action) => {
         case SET_CARDS_DECOR:
             if (action.arr) {
                 return {
-                    goods: action.arr,
-                    showBtn: action.showBtn
+                    goods: [...action.arr]
                 }
             }
             else return {
-                goods: action.arr,
+                goods: null,
                 showBtn: '0'
             }
         case SET_CARDS_DECOR_MORE:
@@ -30,5 +29,5 @@ export const cardsDecor = (state = initialState, action) => {
 }
 
 
-export const setCardsDecor = (arr, showBtn) => ({ type: SET_CARDS_DECOR, arr, showBtn });
+export const setCardsDecor = (arr) => ({ type: SET_CARDS_DECOR, arr });
 export const setCardsDecorMore = (arr, showBtn) => ({ type: SET_CARDS_DECOR_MORE, arr, showBtn });

@@ -3,55 +3,43 @@ import Container from '../../../components/UI/Container';
 import { rootAPIsoftfurniture } from '../../../API/api';
 import CatalogSoftFurniture from '../../../components/pagesCatalog/CatalogSoftFurniture/CatalogSoftFurniture';
 import { connect } from 'react-redux';
-import { setCardsSoftFurniture, setCardsSoftFurnitureMore } from '../../../store/redusersSoftFurniture/cardsSoftFurniture';
+import { setCardsSoftFurniture } from '../../../store/redusersSoftFurniture/cardsSoftFurniture';
 import { setCategoriesLinkActive } from '../../../store/redusersSoftFurniture/filterSoftFurniture';
 import { useState, useEffect } from 'react';
 
 import { initializeStore } from '../../../store/store';
+import { setPrelouder } from '../../../store/reducers/prelouder';
+import { setPaginator } from '../../../store/reducers/paginator';
 
 
 
 
-function softfurniture({ title, query, setCardsSoftFurnitureMore, catalog, filter }) {
+function softfurniture({ title, query, catalog, filter, prelouder, setPrelouder, numberPage, resolvedUrl }) {
 
 
 
     const [imageLoading, setImageLoding] = useState(false);
-    const [showNumber, setShowNumber] = useState(16);
-    const [prelouder, setPrelouder] = useState(false);
+    const url = `catalog/bellus/${query}`;
 
     useEffect(() => {
-        setPrelouder(true);
         setImageLoding(true);
-        setTimeout(() => {
-            setPrelouder(false);
-        }, 500)
-        return () => {
-            setShowNumber(12);
-        }
-    }, [query])
-
-    const showMore = () => {
-        setImageLoding(true)
-        setPrelouder(true)
-        setShowNumber(pre => pre + 16);
-
-        rootAPIsoftfurniture.getMore(showNumber).then(response => {
-            setCardsSoftFurnitureMore(response.goods, response.showBtnMore);
-            setPrelouder(false)
-        })
-    }
+        setPrelouder(true);
+        setPrelouder(false);
+    }, [query, numberPage])
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
                 <CatalogSoftFurniture
                     title={title}
                     filter={filter}
                     catalog={catalog}
                     prelouder={prelouder}
-                    getGoodsMore={showMore}
-                    imageLoading={imageLoading} />
+                    imageLoading={imageLoading}
+                    setPrelouder={setPrelouder}
+                    option={1}
+                    url={url}
+                    setPrelouder={setPrelouder} />
             </Container>
         </Layout >
     )
@@ -59,35 +47,44 @@ function softfurniture({ title, query, setCardsSoftFurnitureMore, catalog, filte
 
 const mapStateToProps = (state) => ({
     catalog: state.cardsSoftFurniture,
-    filter: state.filterSoftFurniture
+    filter: state.filterSoftFurniture,
+    prelouder: state.prelouder
 })
 
-export default connect(mapStateToProps, { setCardsSoftFurniture, setCardsSoftFurnitureMore, setCategoriesLinkActive })(softfurniture)
+export default connect(mapStateToProps, { setPrelouder })(softfurniture)
 
 
 
 export async function getServerSideProps(context) {
-
+    const { resolvedUrl } = context;
     const query = context.query.param;
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
-    const res = await rootAPIsoftfurniture.getGoods(query).then(response => {
-        return response
-    })
 
-    dispatch(setCategoriesLinkActive(res.catGoods, query));
-    dispatch(setCardsSoftFurniture(res.goods, res.showBtnMore));
+    let numberPage = 1;
+
+    if (context.query.count) {
+        numberPage = context.query.count;
+    }
+
+    const res = await rootAPIsoftfurniture.getGoods(query, '', numberPage);
 
 
 
     const title = res.catGoods.find(item => item.url === query).title;
+
+    dispatch(setCategoriesLinkActive(res.catGoods, query));
+    dispatch(setCardsSoftFurniture(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
             res,
             query,
             title,
+            numberPage,
+            resolvedUrl,
             initialReduxState: reduxStore.getState()
         }
     }

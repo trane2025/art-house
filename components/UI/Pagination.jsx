@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { nextPage, setPaginator } from '../../store/reducers/paginator';
@@ -8,7 +9,11 @@ function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-function Pagination({ url, paginator, nextPage, setPrelouder, option }) {
+function Pagination({ url, paginator, nextPage, setPrelouder, option, value }) {
+
+
+
+    const router = useRouter();
 
     const onclickNext = () => {
 
@@ -32,70 +37,92 @@ function Pagination({ url, paginator, nextPage, setPrelouder, option }) {
         setPrelouder(true);
     }
 
+    const allQuery = {
+        option,
+        value,
+        filter: router.query.filter
+    };
+
+    // let dopQuery = {};
+
+    // Object.keys(allQuery).forEach((key) => {
+
+    //     if (allQuery[key]) {
+    //         dopQuery = {
+    //             ...dopQuery,
+    //             [key]: allQuery[key]
+    //         }
+    //     }
+
+    // });
+
+
 
     return (
-        <Container>
-            {paginator.countAllGroup > 1 && <SlideButton onClick={onclickPrev}>
-                <a>
-                    <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
-                    </svg>
-                </a>
-            </SlideButton>}
-            <WraperLinks>
+        <>
+            {!!paginator.arr.length && paginator.arr[0].length !== 1 && <Container>
+                {paginator.countAllGroup > 1 && <SlideButton onClick={onclickPrev}>
+                    <a>
+                        <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
+                        </svg>
+                    </a>
+                </SlideButton>}
+                <WraperLinks>
 
-                {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== 1 && <>
-                    <Item>
-                        <Link href={{
-                            pathname: `/${url}`,
-                            query: { count: '1', option }
-                        }}>
-                            <LinkPagination>1</LinkPagination>
-                        </Link>
-                    </Item>
-                    <Item>
-                        ...
-                    </Item>
-                </>}
-                {!!paginator.arr.length && paginator.arr[paginator.numberActiveGroup].map((el, index) => {
-                    return (
-                        <Item key={index} onClick={changePage}>
+                    {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== 1 && <>
+                        <Item>
                             <Link href={{
                                 pathname: `/${url}`,
-                                query: { count: el, option }
-                            }} >
-                                <a>
-                                    <LinkPagination activePage={paginator.activePage === el} >{el}</LinkPagination>
-                                </a>
+                                query: { ...router.query, count: '1' }
+                            }}>
+                                <LinkPagination>1</LinkPagination>
                             </Link>
-
                         </Item>
-                    )
-                })}
-                {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== paginator.countAllGroup && <>
-                    <Item>
-                        ...
+                        <Item>
+                            ...
                     </Item>
-                    <Item>
-                        <Link
-                            href={{
-                                pathname: `/${url}`,
-                                query: { count: paginator.countAllPages, option }
-                            }}
-                        >
-                            <LinkPagination>{numberWithSpaces(paginator.countAllPages)}</LinkPagination>
-                        </Link>
+                    </>}
+                    {!!paginator.arr.length && paginator.arr[paginator.numberActiveGroup].map((el, index) => {
+                        return (
+                            <Item key={index} onClick={changePage}>
+                                <Link href={{
+                                    pathname: `/${url}`,
+                                    query: { ...router.query, count: el, }
+                                }} >
+                                    <a>
+                                        <LinkPagination activePage={paginator.activePage === el} >{el}</LinkPagination>
+                                    </a>
+                                </Link>
+
+                            </Item>
+                        )
+                    })}
+                    {paginator.countAllGroup > 1 && paginator.numberActiveGroup + 1 !== paginator.countAllGroup && <>
+                        <Item>
+                            ...
                     </Item>
-                </>}
-            </WraperLinks>
-            {paginator.countAllGroup > 1 && <SlideButton right onClick={onclickNext}>
-                <a>
-                    <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
-                    </svg>
-                </a>
-            </SlideButton>}
-        </Container >
+                        <Item>
+                            <Link
+                                href={{
+                                    pathname: `/${url}`,
+                                    query: { ...router.query, count: paginator.countAllPages }
+                                }}
+                            >
+                                <LinkPagination>{numberWithSpaces(paginator.countAllPages)}</LinkPagination>
+                            </Link>
+                        </Item>
+                    </>}
+                </WraperLinks>
+                {paginator.countAllGroup > 1 && <SlideButton right onClick={onclickNext}>
+                    <a>
+                        <svg width="12" height="12" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3.65674 0.751099L0.751009 3.65683L3.65674 6.56256" stroke="#562F2F" strokeLinecap="round" />
+                        </svg>
+                    </a>
+                </SlideButton>}
+            </Container >}
+        </>
     )
 }
 

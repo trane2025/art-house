@@ -12,7 +12,6 @@ function TextArea(props) {
                 type={props.type}
                 id={props.label}
                 placeholder={props.placeholder}
-                autoFocus
                 value={props.value}
                 onChange={props.onChange} />
         </TextAreaStyle>

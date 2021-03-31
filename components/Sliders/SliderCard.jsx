@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import PrelouderImage from '../UI/PrelouderImage';
 import PopUpSlider from './PopUpSlider';
 
-function SliderCard({ imagesCards }) {
+function SliderCard({ imagesCards, imageLoading }) {
 
 
 
     const [imageSlider, setImage] = useState(0);
     const [popup, setPopup] = useState(false);
+    const [prelouderImg, setPrelouderImg] = useState(false);
+
+    useEffect(() => {
+        setPrelouderImg(imageLoading);
+    }, [imageLoading])
+
+
 
 
     const ChangeImg = (value) => {
@@ -25,7 +33,13 @@ function SliderCard({ imagesCards }) {
 
                     {imagesCards.map((item, index) => {
                         return (
-                            <ImageCatalog active={imageSlider === index} key={index} onClick={() => { setPopup(true) }}>
+                            <ImageCatalog
+                                active={imageSlider === index} key={index}
+                                onClick={() => { setPopup(true) }}
+                                onLoad={() => setTimeout(() => { setPrelouderImg(false) }, 600)}>
+
+                                {prelouderImg && <PrelouderImage />}
+
                                 <i className="image-loup">
                                     <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <circle cx="35" cy="35" r="35" fill="#FBD2A4" />
@@ -44,8 +58,10 @@ function SliderCard({ imagesCards }) {
                     {dotsArr.map((image, index) => {
 
                         return (
+
                             <DotsItem imageActive={imageSlider === index} key={index} onClick={() => { ChangeImg(index) }}>
-                                <img className='dots-image' src={image} alt="фото товара" />
+                                {prelouderImg && <PrelouderImage />}
+                                <img className='dots-image' src={image} alt="фото товара" onLoad={() => setTimeout(() => { setPrelouderImg(false) }, 600)} />
                             </DotsItem>
                         )
                     })}
@@ -92,7 +108,7 @@ const ImageCatalog = styled.div`
 `;
 
 const DotsItem = styled.li`
-    
+    position: relative;
     margin: 10px;
     width: 100px;
     min-width: 100px;

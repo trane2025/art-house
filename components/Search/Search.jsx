@@ -1,46 +1,57 @@
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import CatalogNull from '../CatalogList/CatalogNull';
+import Pagination from '../UI/Pagination';
+import Prelouder from '../UI/Prelouder';
+import PrelouderImage from '../UI/PrelouderImage';
 
-function Search({ showBtnMore, goods, textResponse, showMore, preloder }) {
+function Search({ goods, textResponse, prelouder, url, inputValue, imageLoading }) {
+
+    const [prelouderImg, setPrelouderImg] = useState(imageLoading);
+
+
 
     return (
-        <Container preloder={preloder}>
-            {goods && <h1 className='title'>{`Вы искали: ${textResponse}`}</h1>}
-            <ul>
-                {goods ? goods.map((item, index) => {
-                    const image = item.picture.split(';');
-                    return (
-                        <li key={index}>
+        <>
+            <Container prelouder={prelouder}>
+                {goods && <h1 className='title'>{`Вы искали: ${textResponse}`}</h1>}
+                {prelouder && <Prelouder prelouder={prelouder} />}
+                <ul>
+                    {goods ? goods.map((item, index) => {
+                        const image = item.picture.split(';');
+                        return (
+                            <li key={index}>
 
-                            <Link href={`/catalog/${item.shop}/product/${item.id}`}>
-                                <a>
-                                    <WraperImg>
-                                        <img src={image[0]} alt="Фото товара" />
-                                    </WraperImg>
-                                </a>
-                            </Link>
-
-                            <div>
                                 <Link href={`/catalog/${item.shop}/product/${item.id}`}>
                                     <a>
-                                        <h3>{item.title}</h3>
+                                        <WraperImg>
+                                            {prelouderImg && noneProduct !== 'Ошибка' && <PrelouderImage />}
+                                            <img src={image[0]} alt="Фото товара" onLoad={() => setPrelouderImg(false)} />
+                                        </WraperImg>
                                     </a>
                                 </Link>
 
-                                <p className='article'>{`Артикул ${item.article}`}</p>
+                                <div>
+                                    <Link href={`/catalog/${item.shop}/product/${item.id}`}>
+                                        <a>
+                                            <h3>{item.title}</h3>
+                                        </a>
+                                    </Link>
 
-                                <h3 className='price'>{`${item.price} руб.`}</h3>
-                            </div>
+                                    <p className='article'>{`Артикул ${item.article}`}</p>
 
-                        </li>
-                    )
-                })
-                    : <CatalogNull />}
-            </ul>
-            {!!showBtnMore && <button onClick={showMore}>Показать еще</button>}
-        </Container>
+                                    <h3 className='price'>{`${item.price} руб.`}</h3>
+                                </div>
+
+                            </li>
+                        )
+                    })
+                        : <CatalogNull />}
+                </ul>
+            </Container>
+            <Pagination url={url} value={inputValue} />
+        </>
     )
 }
 
@@ -67,7 +78,7 @@ const WraperImg = styled.div`
 const Container = styled.div`
     ul {
         transition: .3s;
-        opacity: ${props => props.preloder ? '.3' : '1'};
+        opacity: ${props => props.prelouder ? '.3' : '1'};
     }
 
     .title {

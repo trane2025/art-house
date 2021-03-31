@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Checkbox from './Checkbox';
 
 
-function FilterItem({ title, items, toggleCheckbox, isShow }) {
+function FilterItem({ title, items, toggleCheckbox, isShow, itemsKey }) {
 
     const [isOpen, setIsOpen] = useState(isShow);
 
@@ -16,31 +16,38 @@ function FilterItem({ title, items, toggleCheckbox, isShow }) {
             <div className="title-wraper" onClick={() => { setIsOpen(!isOpen) }} >
                 <h4>{title}</h4>
                 <i className='icon-arrow'>
-                    <svg width="15" height="9" viewBox="0 0 15 9" fill="none" >
+                    <svg width="8" height="8" viewBox="0 0 15 9" fill="none" >
                         <path d="M13.3137 7.47241L7.65687 1.84521L2.00001 7.47241" stroke="#562F2F" strokeWidth="2" strokeLinecap="round" />
                     </svg>
                 </i>
             </div>
 
-            {isOpen && <>
-                {items.map((item, index) => {
+            {isOpen && <ContainerCheckBox>
+                {itemsKey.map(key => {
+
+                    const itemCheckBox = items[key];
                     return (
                         <Checkbox
-                            key={index}
+                            key={itemCheckBox.id}
                             onChecked={onChecked}
-                            label={item.checkBoxName}
-                            name={item.checkBoxName}
-                            id={item.id}
-                            checked={item.checked} />
+                            label={itemCheckBox.checkBoxName}
+                            name={itemCheckBox.checkBoxName}
+                            id={itemCheckBox.id}
+                            checked={itemCheckBox.checked} />
                     )
                 })}
-            </>}
+            </ContainerCheckBox>}
 
         </FilterItemStyle>
     )
 }
 
 export default FilterItem;
+
+const ContainerCheckBox = styled.ul`
+    max-height: 200px;
+    overflow-y: auto;
+`;
 
 const FilterItemStyle = styled.div`
     user-select: none;
@@ -54,7 +61,7 @@ const FilterItemStyle = styled.div`
         }
         
     .title-wraper {
-        padding: 15px 30px;
+        padding: 8px 30px;
         
         display: flex;
     }

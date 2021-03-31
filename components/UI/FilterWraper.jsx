@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 
 
-function Filter(props) {
+function Filter({ title, children, marginTop = '0' }) {
     return (
-        <FilterStyle>
+        <FilterStyle marginTop={marginTop}>
             <form onSubmit={event => (event.preventDefault())}>
                 <div className='filter-title'>
                     <h3>
@@ -15,10 +15,10 @@ function Filter(props) {
                             <line x1="0.5" y1="9.3374" x2="11.5" y2="9.3374" stroke="#562F2F" strokeLinecap="round" />
                         </svg>
 
-                        {props.title}
+                        {title}
                     </h3>
                 </div>
-                {props.children}
+                {children}
             </form>
         </FilterStyle>
     )

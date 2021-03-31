@@ -5,106 +5,137 @@ import { rootAPI } from '../../API/api';
 import Catalog from '../../components/Layout/Catalog';
 import Layout from '../../components/Layout/Layout';
 import Container from '../../components/UI/Container';
-import { setGoods, setGoodsMore } from '../../store/reducers/cardsGoods';
-import { sortPage } from '../../store/reducers/pageLinks';
+import { setGoods } from '../../store/reducers/cardsGoods';
+import { setPageLinks, sortPage } from '../../store/reducers/pageLinks';
 import { initializeStore } from '../../store/store';
-import { useUpdateEffect } from '../../useHooks';
+import { setPrelouder } from '../../store/reducers/prelouder';
+import { setPaginator } from '../../store/reducers/paginator';
+import { setBreadCrubs } from '../../store/reducers/breadCrumbs';
+import { setFilter } from '../../store/reducers/filter';
+import { normalizeFilter } from '../../normalaze/normalazeFilter';
 
 
 
 
-function tables({ query, title, cardsGoods, setGoods, setGoodsMore }) {
+function chairs({ title, cardsGoods, prelouder, setPrelouder, numberPage, selectOption, page, resolvedUrl, pageLinks, breadCrumbs }) {
 
+
+    const router = useRouter();
+
+    const url = `catalog/${page}`;
     const { asPath } = useRouter();
 
-    const linksGoods = sortPage(query)
-
-    const [showNumber, setShowNumber] = useState(12);
-    const [prelouder, setPrelouder] = useState(false);
-    const [option, setOption] = useState(1);
+    const [option, setOption] = useState(selectOption);
     const [imageLoading, setImageLoding] = useState(false);
 
     useEffect(() => {
-        setOption(1);
-        setPrelouder(true);
         setImageLoding(true);
+        setPrelouder(true);
         setTimeout(() => {
             setPrelouder(false);
         }, 500)
-        return () => {
-            setShowNumber(12);
-        }
-    }, [])
+    }, [numberPage])
 
     const onchangeOptions = (event) => {
-        setShowNumber(12);
         setOption(event.target.value);
-    }
-
-
-    useUpdateEffect(() => {
-        setImageLoding(true)
         setPrelouder(true);
-        rootAPI.getGoods(query, option).then(response => {
-            setGoods(response.goods, response.showBtnMore);
-            setPrelouder(false)
-        })
-    }, [option]);
-
-
-    const getGoodsMore = () => {
-        setImageLoding(true);
-        setPrelouder(true)
-        setShowNumber(pre => pre + 12);
-
-        rootAPI.getGoodsMore(query, option, showNumber).then(response => {
-            setGoodsMore(response.goods, response.showBtnMore);
-            setPrelouder(false);
+        router.push({
+            pathname: `/${url}`,
+            query: { ...router.query, option: event.target.value, count: 1 }
         })
     }
 
 
 
     return (
-        <Layout title={title}>
+        <Layout title={title} resolvedUrl={resolvedUrl}>
             <Container>
                 <Catalog
-                    typeGoodLinks={linksGoods}
+                    typeGoodLinks={pageLinks}
                     title={title}
                     linkRoute={asPath}
                     cardsGoods={cardsGoods}
-                    getGoodsMore={getGoodsMore}
                     prelouder={prelouder}
                     onchangeOptions={onchangeOptions}
                     imageLoading={imageLoading}
-                />
+                    option={option}
+                    url={url}
+                    setPrelouder={setPrelouder}
+                    urlLink={url}
+                    pageLinks={pageLinks}
+                    breadCrumbs={breadCrumbs} />
             </Container>
         </Layout >
     )
 }
 
 const mapStateToProps = (state) => ({
-    cardsGoods: state.cardsGoods
+    cardsGoods: state.cardsGoods,
+    prelouder: state.prelouder,
+    pageLinks: state.pageLinks,
+    breadCrumbs: state.breadCrumbs
 })
 
-export default connect(mapStateToProps, { setGoods, setGoodsMore })(tables);
+export default connect(mapStateToProps, { setPrelouder })(chairs);
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ query, resolvedUrl }) {
     const title = 'Стулья';
-    const query = 'chairs';
+    const page = 'chairs';
+
+
+    let filterQuery = ''
+    let numberPage = 1;
+    let option = 1;
+
+    if (query.filter) {
+        filterQuery = query.filter
+    }
+
+    if (query.count) {
+        numberPage = query.count;
+    }
+
+    if (query.option) {
+        option = query.option;
+    }
 
     const reduxStore = initializeStore();
     const { dispatch } = reduxStore;
 
-    const res = await rootAPI.getGoods(query, '');
+    const res = await rootAPI.getGoods(page, option, '', numberPage, filterQuery);
 
-    dispatch(setGoods(res.goods, res.showBtnMore));
+    const breadCrumbsArr = [
+        {
+            title: 'Главная',
+            path: '/'
+        },
+        {
+            title,
+            path: `/catalog/${page}`
+        },
+    ]
+
+    const filter = res.filter;
+
+    dispatch(setFilter(normalizeFilter(filter)));
+
+    dispatch(setBreadCrubs(breadCrumbsArr));
+
+    dispatch(setPageLinks(res.catGoods))
+    dispatch(setGoods(res.goods));
+    dispatch(setPaginator(res));
 
     return {
         props: {
+            res,
+            page,
             query,
             title,
-            initialReduxState: reduxStore.getState()
+            numberPage,
+            selectOption: option,
+            resolvedUrl,
+            initialReduxState: reduxStore.getState(),
+            filter
         }
     }
 }

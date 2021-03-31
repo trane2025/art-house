@@ -4,11 +4,15 @@ import FilterWraper from '../../UI/FilterWraper';
 import CatalogList from '../../CatalogList/CatalogList';
 import Prelouder from '../../UI/Prelouder';
 import CatalogNull from '../../CatalogList/CatalogNull';
+import Pagination from '../../UI/Pagination';
 
 
 
 function CatalogSoftFurniture(props) {
 
+    const changePage = () => {
+        props.setPrelouder(true);
+    }
 
     return (
 
@@ -21,7 +25,7 @@ function CatalogSoftFurniture(props) {
                             <LinkCategories active={link.active} key={index} className="container-categories">
 
                                 <Link href={'/catalog/bellus/[param]'} as={`/catalog/bellus/${link.url}`}>
-                                    <a className="label-categories">{link.title}</a>
+                                    <a className="label-categories" onClick={changePage}>{link.title}</a>
                                 </Link>
 
                             </LinkCategories>
@@ -50,7 +54,7 @@ function CatalogSoftFurniture(props) {
                     })
                         : <CatalogNull />}
                 </CardsListStyle>
-                {!props.prelouder && props.catalog.showBtn != 0 && <button onClick={props.getGoodsMore} className='button-more' >Показать еще</button>}
+                <Pagination url={props.url} option={props.option} />
 
             </div>
         </StoreContainer>

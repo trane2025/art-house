@@ -1,62 +1,74 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import { rootAPIsearch } from '../API/api';
 import Layout from '../components/Layout/Layout';
 import Search from '../components/Search/Search';
 import Container from '../components/UI/Container';
 import Prelouder from '../components/UI/Prelouder';
+import { setPaginator } from '../store/reducers/paginator';
+import { setPrelouder } from '../store/reducers/prelouder';
 
-function search({ inputValue }) {
+function search({ inputValue, prelouder, setPrelouder, setPaginator, page, resolvedUrl }) {
 
     const [goods, setGoods] = useState(null);
-    const [showBtnMore, setShowMore] = useState(0);
-    const [countShow, setCountShow] = useState(10);
-    const [preloder, setPreloder] = useState(false);
-
+    const url = `search`;
+    const [imageLoading, setImageLoading] = useState(false);
 
 
     useEffect(() => {
-        rootAPIsearch.getGoods(inputValue).then(response => {
-            console.log(response);
+        setPrelouder(true)
+        rootAPIsearch.getGoods(inputValue, page).then(response => {
+
             setGoods(response.goods);
-            setShowMore(response.showBtnMore);
+            setPaginator(response);
+            setPrelouder(false);
+            setImageLoading(true);
         })
-        return () => {
-            setCountShow(10)
-        }
-    }, [inputValue]);
 
-    const showMore = () => {
-        setPreloder(true);
-        setCountShow(countShow + 10);
+    }, [inputValue, page]);
 
-        rootAPIsearch.getGoods(inputValue, countShow).then(response => {
-            setPreloder(false)
-            setGoods([...goods, ...response.goods]);
-            setShowMore(response.showBtnMore);
-        })
-    }
+
 
     return (
-        <Layout title='Оформление заказа'>
+        <Layout title='Оформление заказа' resolvedUrl={resolvedUrl}>
             <Container>
-                {goods !== null ? <Search goods={goods} textResponse={inputValue} showBtnMore={showBtnMore} showMore={showMore} preloder={preloder} /> : <Prelouder />}
+
+                {goods !== null ?
+                    <Search
+                        goods={goods}
+                        textResponse={inputValue}
+                        prelouder={prelouder}
+                        url={url}
+                        inputValue={inputValue}
+                        imageLoading={imageLoading} />
+                    : <Prelouder />}
+
             </Container>
         </Layout>
 
     )
 }
 
+const mapStateToProps = (state) => ({
+    prelouder: state.prelouder
+})
+
+export default connect(mapStateToProps, { setPrelouder, setPaginator })(search);
 
 
-export default search;
 
+export async function getServerSideProps({ query, resolvedUrl }) {
 
-
-export async function getServerSideProps({ query }) {
+    let page = 1;
+    if (query.count) {
+        page = query.count;
+    }
 
     return {
         props: {
-            inputValue: query.value
+            inputValue: query.value,
+            page,
+            resolvedUrl
         }
     }
 }
